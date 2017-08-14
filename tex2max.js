@@ -307,16 +307,13 @@ function read_next_tex(latex, position) {
 function tex2max(latex) {
 	var result = '';
 	var position = 0;
-	var breaker = 0;
 	while (latex.length > position) {
-		breaker++;
-		if (breaker > 10000) {
-			console.log('[ERROR] Breaking out of infinite loop. ' + latex.length + ' > ' + position);
-			break;
-		}
 		var max = read_next_tex(latex, position);
 		result += max.text;
 		position += max.size;
+		if (max.size < 1) {
+			break;
+		}
 	}
 	return result;
 }
