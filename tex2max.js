@@ -23,31 +23,13 @@ function read_next_tex_text(latex, position) {
 	};
 }
 
-function get_matching_closing_parantheses(latex, position) {
+function get_matching_closing(latex, position, start, end) {
 	var end_position = -1;
 	var nested = 0;
 	for (var i = position; i < latex.length; i++) {
-		if (latex.substring(i).startsWith('\\left')) {
+		if (latex.substring(i).startsWith(start)) {
 			nested++;
-		} else if (latex.substring(i).startsWith('\\right')) {
-			if (nested > 0) {
-				nested--;
-			} else if (nested === 0) {
-				end_position = i;
-				break;
-			}
-		}
-	}
-	return end_position;
-}
-
-function get_matching_closing_bracket(latex, position) {
-	var end_position = -1;
-	var nested = 0;
-	for (var i = position; i < latex.length; i++) {
-		if (latex.charAt(i) === '{') {
-			nested++;
-		} else if (latex.charAt(i) === '}') {
+		} else if (latex.substring(i).startsWith(end)) {
 			if (nested > 0) {
 				nested--;
 			} else if (nested === 0) {
@@ -71,22 +53,7 @@ function read_tex_args(latex, position, max_args) {
 		if (begin === -1) {
 			break;
 		}
-		position = begin + 1;
-
-		// TODO: use the function instead, but needs testing
-		var nested = 0;
-		for (var i = begin + 1; i < latex.length; i++) {
-			if (latex.charAt(i) === '{') {
-				nested++;
-			} else if (latex.charAt(i) === '}') {
-				if (nested > 0) {
-					nested--;
-				} else if (nested === 0) {
-					position = i;
-					break;
-				}
-			}
-		}
+		position = get_matching_closing(latex, begin + 1, '{', '}');
 
 		var arg_tex = latex.substring(begin + 1, position);
 		
@@ -150,82 +117,108 @@ function translate_tex_command_function(latex, position) {
 		if (!inline) {
 			break;
 		}
-
-
 		result.size++;
-
 	}
 	
 	result.text = latex.substring(position, position + result.size);
 	result.text = tex2max(result.text);
 
 	return result;
-
 }
 
-function read_next_tex_command(latex, position) {
-
-	var size = 0;
-	var result = '';
-
-	var command = latex.substring(position);
-
-	size++; // the slash
-
-	if (command.startsWith('frac')) {
+var translation_commands = {
+	
+	frac: function(latex, position) {
 		var args = read_tex_args(latex, position, 2);
-		result += translate_tex_command_frac(args.arg[0], args.arg[1]);
-		size += 4 + args.size;
-	}
-	else if (command.startsWith('pm')) {
-		result += '+-';
-		size += 2;
-	}
-	else if (command.startsWith('sqrt')) {
+		return {
+			text: '((' + args.arg[0] + ')/(' + args.arg[1] + '))',
+			size: args.size + 4
+		};
+	},
+
+	pm: function(latex, position) {
+		return {
+			text: '+-',
+			size: 2
+		};
+	},
+
+	cdot: function(latex, position) {
+		return {
+			text: '*',
+			size: 4
+		};
+	},
+
+	bullet: function(latex, position) {
+		return {
+			text: '*',
+			size: 6
+		};
+	},
+
+	delta: function(latex, position) {
+		return {
+			text: 'd',
+			size: 5
+		};
+	},
+
+	theta: function(latex, position) {
+		return {
+			text: 'theta',
+			size: 5
+		};
+	},
+
+	sqrt: function(latex, position) {
 		var args = read_tex_args(latex, position, 1);
-		result += translate_tex_command_sqrt(args.arg[0]);
-		size += 4 + args.size;
-	}
-	else if (command.startsWith('cdot')) {
-		result += '*';
-		size += 4;
-	}
-	else if (command.startsWith('bullet')) {
-		result += '*';
-		size += 6;
-	}
-	else if (command.startsWith('sin')) {
-		var param = translate_tex_command_function(command, 3);
-		result += 'sin(' + param.text + ')';
-		size += 3 + param.size;
-	}
-	else if (command.startsWith('cos')) {
-		var param = translate_tex_command_function(command, 3);
-		result += 'cos(' + param.text + ')';
-		size += 3 + param.size;
-	}
-	else if (command.startsWith('delta')) {
-		result += 'd';
-		size += 5;
-	}
-	else if (command.startsWith('theta')) {
-		result += 'theta';
-		size += 5;
-	}
-	else if (command.startsWith('text')) {
+		return {
+			text: 'sqrt(' + args.arg[0] + ')',
+			size: args.size + 4
+		};
+	},
+
+	sin: function(latex, position) {
+		var arg = translate_tex_command_function(latex, position + 3);
+		return {
+			text: 'sin(' + arg.text + ')',
+			size: arg.size + 3
+		};
+	},
+
+	cos: function(latex, position) {
+		var arg = translate_tex_command_function(latex, position + 3);
+		return {
+			text: 'cos(' + arg.text + ')',
+			size: arg.size + 3
+		};
+	},
+
+	text: function(latex, position) {
 		var args = read_tex_args(latex, position, 1);
-		result += args.arg[0];
-		size += 4 + args.size;
-	}
-	else if (command.startsWith('left')) {
-		result += '(';
-		size += 4;
-	}
-	else if (command.startsWith('right')) {
-		result += ')';
-		size += 5;
-	}
-	else if (command.startsWith('sum')) {
+		return {
+			text: args.arg[0],
+			size: args.size + 4
+		};
+	},
+
+	left: function(latex, position) {
+		return {
+			text: '(',
+			size: 4
+		};
+	},
+
+	right: function(latex, position) {
+		return {
+			text: ')',
+			size: 5
+		};
+	},
+
+	sum: function(latex, position) {
+		var command = latex.substring(position);
 		var args = command.substring(4);
 		var carrot_index = args.indexOf('^');
 		var lower = args.substring(0, carrot_index);
@@ -238,7 +231,7 @@ function read_next_tex_command(latex, position) {
 		var upper = '';
 		var last_index = 0;
 		if (args.charAt(carrot_index + 1) === '{') {
-			var closing_index = get_matching_closing_bracket(args, carrot_index + 2);
+			var closing_index = get_matching_closing(args, carrot_index + 2, '{', '}');
 			if (closing_index === -1) {
 				closing_index = carrot_index + 2;
 			}
@@ -248,12 +241,14 @@ function read_next_tex_command(latex, position) {
 			upper = args.charAt(carrot_index + 1);
 			last_index = carrot_index + 1;
 		}
-		result += 'sum(i, i, ' + lower + ', ' + upper + ')';
-		size += last_index + 5;
-	}
-	else if (command.startsWith('lim')) {
-		// limit(exp, x, val, dir) <- dir doesn't work?
-		// limit(3*x, x, 100)
+		return {
+			text: 'sum(i, i, ' + lower + ', ' + upper + ')',
+			size: last_index + 5
+		};
+	},
+
+	lim: function(latex, position) {
+		var command = latex.substring(position);
 		var expression = '';
 		var x = '';
 		var value = '';
@@ -261,7 +256,7 @@ function read_next_tex_command(latex, position) {
 		var to_index = args.indexOf('\\to');
 		if (to_index !== -1) {
 			if (command.charAt(4) === '{') {
-				var closing_index = get_matching_closing_bracket(command, 4 + 2);
+				var closing_index = get_matching_closing(command, 4 + 2, '{', '}');
 				if (closing_index === -1) {
 					closing_index = 4 + 2;
 				}
@@ -275,32 +270,44 @@ function read_next_tex_command(latex, position) {
 
 		var expression_left = closing_index + 1;
 		if (command.substring(expression_left, expression_left + 5) === '\\left') {
-			var expression_right = get_matching_closing_parantheses(command, expression_left + 1);
+			var expression_right = get_matching_closing(command, expression_left + 1, '\\left', '\\right');
 			expression = command.substr(expression_left, expression_right);
 			expression = tex2max(expression);
 			closing_index = expression_right + 5;
 		}
 
-		result += 'limit(' + expression + ', ' + x + ', ' + value + ')';
+		return {
+			text: 'limit(' + expression + ', ' + x + ', ' + value + ')',
+			size: closing_index + 1
+		};
+	},
 
-		size += 1 + closing_index;
+};
+
+function translate_command(latex, position) {
+	var command = latex.substring(position);
+	for (var i in translation_commands) {
+		if (command.startsWith(i)) {
+			return translation_commands[i](latex, position);
+		}
 	}
-
-
-	else {
-		console.log('[WARNING] Did not find command: ' + command);
-	}
-
 	return {
-		size: size,
-		text: result
+		text: '',
+		size: 0
 	};
+}
+
+function read_next_tex_command(latex, position) {
+	position++; // Remove slash
+	var result = translate_command(latex, position);
+	result.size++; // Add slash to size
+	return result;
 }
 
 function read_next_tex(latex, position) {
 	var first = latex.charAt(position);
 	if (first === '\\') {
-		return read_next_tex_command(latex, position + 1);
+		return read_next_tex_command(latex, position);
 	}
 	return read_next_tex_text(latex, position);
 }
