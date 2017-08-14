@@ -72,14 +72,6 @@ function read_tex_args(latex, position, max_args) {
 	return args;
 }
 
-function translate_tex_command_frac(numerator, denominator) {
-	return '((' + numerator + ')/(' + denominator + '))';
-}
-
-function translate_tex_command_sqrt(content) {
-	return 'sqrt(' + content + ')';
-}
-
 function translate_tex_command_function(latex, position) {
 	
 	var result = {
