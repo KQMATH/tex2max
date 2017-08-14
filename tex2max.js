@@ -240,15 +240,19 @@ var translation_commands = {
 	},
 
 	lim: function(latex, position) {
+
 		var command = latex.substring(position);
 		var expression = '';
 		var x = '';
 		var value = '';
 		var args = command.substring(4);
+		var closing_index = 0;
+
 		var to_index = args.indexOf('\\to');
+
 		if (to_index !== -1) {
 			if (command.charAt(4) === '{') {
-				var closing_index = get_matching_closing(command, 4 + 2, '{', '}');
+				closing_index = get_matching_closing(command, 4 + 2, '{', '}');
 				if (closing_index === -1) {
 					closing_index = 4 + 2;
 				}
@@ -260,13 +264,17 @@ var translation_commands = {
 			}
 		}
 
-		var expression_left = closing_index + 1;
-		if (command.substring(expression_left, expression_left + 5) === '\\left') {
-			var expression_right = get_matching_closing(command, expression_left + 1, '\\left', '\\right');
-			expression = command.substr(expression_left, expression_right);
-			expression = tex2max(expression);
-			closing_index = expression_right + 5;
+		var enclosed = latex.substring(position - 6).startsWith('\\left');
+		if (enclosed) {
+			var expression_right = get_matching_closing(command, closing_index + 2, '\\left', '\\right');
+			expression = command.substr(closing_index + 1, expression_right);
+			closing_index = expression_right - 1;
+		} else {
+			expression = command.substring(closing_index + 1);
+			closing_index = command.length;
 		}
+		
+		expression = tex2max(expression);
 
 		return {
 			text: 'limit(' + expression + ', ' + x + ', ' + value + ')',
