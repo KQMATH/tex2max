@@ -225,6 +225,12 @@ var translation_commands = {
 			lower = lower.substring(0, lower.length - 1);
 		}
 
+		var lower_equals_index = lower.indexOf('=');
+		if (lower_equals_index !== -1) {
+			i = lower.substring(0, lower_equals_index);
+			lower = lower.substring(lower_equals_index + 1);
+		}
+
 		var upper = '';
 		var last_index = 0;
 		if (args.charAt(caret_index + 1) === '{') {
