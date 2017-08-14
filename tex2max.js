@@ -212,30 +212,50 @@ var translation_commands = {
 	sum: function(latex, position) {
 		var command = latex.substring(position);
 		var args = command.substring(4);
-		var carrot_index = args.indexOf('^');
-		var lower = args.substring(0, carrot_index);
+		var expression = '';
+		var i = 'i';
+		var caret_index = args.indexOf('^');
+		
+		var lower = args.substring(0, caret_index);
+
 		if (lower.charAt(0) === '{') {
 			lower = lower.substring(1);
 		}
 		if (lower.charAt(lower.length - 1) === '}')  {
-			lower = lower.substring(0, lower.length - 1);		
+			lower = lower.substring(0, lower.length - 1);
 		}
+
 		var upper = '';
 		var last_index = 0;
-		if (args.charAt(carrot_index + 1) === '{') {
-			var closing_index = get_matching_closing(args, carrot_index + 2, '{', '}');
+		if (args.charAt(caret_index + 1) === '{') {
+			var closing_index = get_matching_closing(args, caret_index + 2, '{', '}');
 			if (closing_index === -1) {
-				closing_index = carrot_index + 2;
+				closing_index = caret_index + 2;
 			}
-			upper = args.substring(carrot_index + 1, closing_index);
+			upper = args.substring(caret_index + 1, closing_index);
 			last_index = closing_index;
 		} else {
-			upper = args.charAt(carrot_index + 1);
-			last_index = carrot_index + 1;
+			upper = args.charAt(caret_index + 1);
+			last_index = caret_index + 1;
 		}
+
+		var enclosed = latex.substring(position - 6).startsWith('\\left');
+		if (enclosed) {
+			var expression_right = get_matching_closing(command, position, '\\left', '\\right');
+			expression = command.substring(last_index + 5, expression_right);
+			console.log('EXP[1]: ' + expression);
+			last_index = expression_right - 1;
+		} else {
+			expression = command.substring(last_index + 5);
+			console.log('EXP[2]: ' + expression);
+			last_index += 6 + expression.length;
+		}
+
+		expression = tex2max(expression);
+
 		return {
-			text: 'sum(i, i, ' + lower + ', ' + upper + ')',
-			size: last_index + 5
+			text: 'sum(' + expression + ', ' + i + ', ' + lower + ', ' + upper + ')',
+			size: last_index + 1
 		};
 	},
 
@@ -267,11 +287,11 @@ var translation_commands = {
 		var enclosed = latex.substring(position - 6).startsWith('\\left');
 		if (enclosed) {
 			var expression_right = get_matching_closing(command, closing_index + 2, '\\left', '\\right');
-			expression = command.substr(closing_index + 1, expression_right);
+			expression = command.substring(closing_index + 1, expression_right);
 			closing_index = expression_right - 1;
 		} else {
 			expression = command.substring(closing_index + 1);
-			closing_index = command.length;
+			closing_index += expression.length;
 		}
 		
 		expression = tex2max(expression);
