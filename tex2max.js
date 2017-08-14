@@ -23,6 +23,42 @@ function read_next_tex_text(latex, position) {
 	};
 }
 
+function get_matching_closing_parantheses(latex, position) {
+	var end_position = -1;
+	var nested = 0;
+	for (var i = position; i < latex.length; i++) {
+		if (latex.substring(i).startsWith('\\left')) {
+			nested++;
+		} else if (latex.substring(i).startsWith('\\right')) {
+			if (nested > 0) {
+				nested--;
+			} else if (nested === 0) {
+				end_position = i;
+				break;
+			}
+		}
+	}
+	return end_position;
+}
+
+function get_matching_closing_bracket(latex, position) {
+	var end_position = -1;
+	var nested = 0;
+	for (var i = position; i < latex.length; i++) {
+		if (latex.charAt(i) === '{') {
+			nested++;
+		} else if (latex.charAt(i) === '}') {
+			if (nested > 0) {
+				nested--;
+			} else if (nested === 0) {
+				end_position = i;
+				break;
+			}
+		}
+	}
+	return end_position;
+}
+
 function read_tex_args(latex, position, max_args) {
 	var args = {
 		size: max_args,
@@ -37,6 +73,7 @@ function read_tex_args(latex, position, max_args) {
 		}
 		position = begin + 1;
 
+		// TODO: use the function instead, but needs testing
 		var nested = 0;
 		for (var i = begin + 1; i < latex.length; i++) {
 			if (latex.charAt(i) === '{') {
@@ -69,7 +106,7 @@ function read_tex_args(latex, position, max_args) {
 }
 
 function translate_tex_command_frac(numerator, denominator) {
-	return '(' + numerator + '/' + denominator + ')';
+	return '((' + numerator + ')/(' + denominator + '))';
 }
 
 function translate_tex_command_sqrt(content) {
@@ -189,19 +226,64 @@ function read_next_tex_command(latex, position) {
 		size += 5;
 	}
 	else if (command.startsWith('sum')) {
-		// sum(i, i, 1, 100)
-		result += 'sum';
-		size += 3;
+		var args = command.substring(4);
+		var carrot_index = args.indexOf('^');
+		var lower = args.substring(0, carrot_index);
+		if (lower.charAt(0) === '{') {
+			lower = lower.substring(1);
+		}
+		if (lower.charAt(lower.length - 1) === '}')  {
+			lower = lower.substring(0, lower.length - 1);		
+		}
+		var upper = '';
+		var last_index = 0;
+		if (args.charAt(carrot_index + 1) === '{') {
+			var closing_index = get_matching_closing_bracket(args, carrot_index + 2);
+			if (closing_index === -1) {
+				closing_index = carrot_index + 2;
+			}
+			upper = args.substring(carrot_index + 1, closing_index);
+			last_index = closing_index;
+		} else {
+			upper = args.charAt(carrot_index + 1);
+			last_index = carrot_index + 1;
+		}
+		result += 'sum(i, i, ' + lower + ', ' + upper + ')';
+		size += last_index + 5;
 	}
 	else if (command.startsWith('lim')) {
 		// limit(exp, x, val, dir) <- dir doesn't work?
 		// limit(3*x, x, 100)
-		result += 'limit';
-		size += 3;
-	}
-	else if (command.startsWith('to')) { // lim must use this explicitly anyway, so maybe not bother with an if for this one?
-		result += '->';
-		size += 2;
+		var expression = '';
+		var x = '';
+		var value = '';
+		var args = command.substring(4);
+		var to_index = args.indexOf('\\to');
+		if (to_index !== -1) {
+			if (command.charAt(4) === '{') {
+				var closing_index = get_matching_closing_bracket(command, 4 + 2);
+				if (closing_index === -1) {
+					closing_index = 4 + 2;
+				}
+				last_index = closing_index;
+				x = args.substring(1, to_index);
+				value = command.substring(to_index + 7, closing_index);
+			} else {
+				last_index = 4 + 1;
+			}
+		}
+
+		var expression_left = closing_index + 1;
+		if (command.substring(expression_left, expression_left + 5) === '\\left') {
+			var expression_right = get_matching_closing_parantheses(command, expression_left + 1);
+			expression = command.substr(expression_left, expression_right);
+			expression = tex2max(expression);
+			closing_index = expression_right + 5;
+		}
+
+		result += 'limit(' + expression + ', ' + x + ', ' + value + ')';
+
+		size += 1 + closing_index;
 	}
 
 
