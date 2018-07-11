@@ -3,34 +3,27 @@
  * @copyright  2018 NTNU
  */
 
-define([], function () {
+let options = {};
 
-    let options = {};
+export const DEFAULTS = {
+    onlySingleVariables: false,
+    handleEquation: false,
+    addTimesSign: true,
+    onlyGreekLettersAsName: true, // TODO Implement onlyGreekLettersAsName option
+    onlyGreekLettersAsSymbol: false, // TODO Implement onlyGreekLettersAsSymbol option
+};
 
-    const DEFAULTS = {
-        onlySingleVariables: false,
-        handleEquation: false,
-        addTimesSign: true,
-    };
+export function setOptions(userOptions) {
+    options = {};
+    options = Object.assign(DEFAULTS, userOptions)
+}
 
-    function setOptions(userOptions) {
-        options = {};
-        options = Object.assign(DEFAULTS, userOptions)
+export function getOptions() {
+    if (Object.keys(options).length === 0 && options.constructor === Object) {
+        setOptions();
     }
 
-    function readOptions() {
-        if (Object.keys(options).length === 0 && options.constructor === Object) {
-            setOptions();
-        }
+    let optionsCopy = Object.assign({}, options);
 
-        let optionsCopy = Object.assign({}, options);
-
-        return optionsCopy;
-    }
-
-    return {
-        DEFAULTS: DEFAULTS,
-        setOptions: setOptions,
-        getOptions: readOptions,
-    }
-});
+    return optionsCopy;
+}

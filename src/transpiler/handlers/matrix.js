@@ -3,51 +3,46 @@
  * @copyright  2018 NTNU
  */
 
-define(['require', '../maxima-transpiler'], function (require) {
 
-    function handleMatrix(parsedLatex) {
-        let transpiler = require("../maxima-transpiler");
-        let matrixString = "";
+import {transpiler} from "../maxima-transpiler";
 
-        matrixString += 'matrix(';
+export function handleMatrix(parsedLatex) {
+    let matrixString = "";
 
-        let matrixArray = [];
-        let rowArray = [];
+    matrixString += 'matrix(';
 
-        for (let i = 0; i < parsedLatex.length; i++) {
-            const char = parsedLatex[i].value;
-            const type = parsedLatex[i].type;
-            if (type === 'number') {
-                rowArray.push(char)
+    let matrixArray = [];
+    let rowArray = [];
 
-            } else if (type === 'group') {
-                rowArray.push(transpiler(char))
+    for (let i = 0; i < parsedLatex.length; i++) {
+        const char = parsedLatex[i].value;
+        const type = parsedLatex[i].type;
+        if (type === 'number') {
+            rowArray.push(char)
 
-            } else if (type === 'DOUBLE_BACKSLASH') { // New row
-                matrixArray.push(rowArray);
-                rowArray = []; // Reset array
-            }
+        } else if (type === 'group') {
+            rowArray.push(transpiler(char))
+
+        } else if (type === 'DOUBLE_BACKSLASH') { // New row
+            matrixArray.push(rowArray);
+            rowArray = []; // Reset array
         }
-        matrixArray.push(rowArray); // Push last row
-
-        let matrixRowSize = matrixArray[0].length;
-
-        for (let row = 0; row < matrixArray.length; row++) {
-            if (matrixArray[row].length !== matrixRowSize) {
-                throw new Error('All rows in matrix must be the same length');
-            }
-
-            if (row !== 0) {
-                matrixString += ',';
-            }
-            matrixString += '[' + matrixArray[row].toString() + ']'
-        }
-        matrixString += ')';
-
-        return matrixString;
     }
+    matrixArray.push(rowArray); // Push last row
 
-    return {
-        handleMatrix: handleMatrix
-    };
-});
+    let matrixRowSize = matrixArray[0].length;
+
+    for (let row = 0; row < matrixArray.length; row++) {
+        if (matrixArray[row].length !== matrixRowSize) {
+            throw new Error('All rows in matrix must be the same length');
+        }
+
+        if (row !== 0) {
+            matrixString += ',';
+        }
+        matrixString += '[' + matrixArray[row].toString() + ']'
+    }
+    matrixString += ')';
+
+    return matrixString;
+}

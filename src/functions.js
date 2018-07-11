@@ -3,9 +3,9 @@
  * @copyright  2018 NTNU
  */
 
-define(function () {
-    return ['sin', 'cos', 'tan',
-        'arcsin', 'arccos', 'arctan',
-        'log', 'ln', 'sqrt', 'max', 'min',
-        'sum', 'lim', 'int', 'binom'];
-});
+export const functions = [
+    'sin', 'cos', 'tan',
+    'arcsin', 'arccos', 'arctan',
+    'log', 'ln', 'sqrt', 'max', 'min',
+    'sum', 'lim', 'int', 'binom'
+];
