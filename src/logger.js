@@ -3,7 +3,8 @@
  * @copyright  2018 NTNU
  */
 
-const debugging = true;
+const debugging = false;
+const warning = false;
 
 export const debug = (msg) => {
 
@@ -13,7 +14,7 @@ export const debug = (msg) => {
 };
 
 export function warn(msg) {
-    if (debugging) {
+    if (warning) {
         console.warn(msg);
     }
 }
