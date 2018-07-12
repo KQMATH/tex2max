@@ -20,10 +20,10 @@ import {isEquation, stripParenthesis} from "./helpers/helpers";
 
 /**
  * Globally exported API class.
- * Represents a Tex2Max class for handeling translation/transpilation of LaTeX to Maxima code.
+ * Represents a TeX2Max class for handeling translation/transpilation of LaTeX to Maxima code.
  * @param  {Object} userOptions Optional options
  */
-export class Tex2Max {
+export class TeX2Max {
 
     constructor(userOptions) {
         setOptions(userOptions);
