@@ -10,6 +10,7 @@ import {TOKEN_TYPES} from "./tokens/tokens";
 import {RESERVED_WORDS} from "./reservedWords";
 import {getOptions} from "./options";
 import * as logger from './logger';
+import {isGreekLetter} from "./tokens/greek-letters";
 
 const BRACKET_CURLY_OPEN = '{';
 const BRACKET_NORMAL_OPEN = '(';
@@ -269,9 +270,10 @@ export function parseLatex(tokens) {
 
     function parseMacro(macroName) {
         let macro = null;
-        let isMatch = isMacro(macroName)
+        let isMacroMatch = isMacro(macroName);
+        let isGreek = isGreekLetter(macroName);
 
-        if (isMatch) {
+        if (isMacroMatch) {
             // Check for overrides
             macro = MACROS_OVERRIDE.get(macroName);
 
@@ -280,6 +282,11 @@ export function parseLatex(tokens) {
                     type: 'token',
                     value: macroName
                 };
+            }
+        } else if (isGreek) {
+            macro = {
+                type: 'token',
+                value: macroName
             }
         } else {
             logger.warn('Encountered an unsupported macro \"' + macroName + '\", ignoring..')
