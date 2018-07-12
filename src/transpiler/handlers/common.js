@@ -3,36 +3,30 @@
  * @copyright  2018 NTNU
  */
 
-define([], function () {
 
-    function getLimitLength(parsedLatex) {
-        // Locate the next operator + or -.
+export function getLimitLength(parsedLatex) {
+    // Locate the next operator + or -.
 
-        let limitLength = 0;
+    let limitLength = 0;
 
-        if (parsedLatex[0].type === 'group' && parsedLatex.length === 1) {
-            limitLength = 1;
-        } else {
-            let i = 0;
-            let foundLimitLength = false;
-            while (i < parsedLatex.length && !foundLimitLength) {
+    if (parsedLatex[0].type === 'group' && parsedLatex.length === 1) {
+        limitLength = 1;
+    } else {
+        let i = 0;
+        let foundLimitLength = false;
+        while (i < parsedLatex.length && !foundLimitLength) {
 
-                if (parsedLatex[i].value === '+' || parsedLatex[i].value === '-') {
-                    limitLength = (i);
-                    foundLimitLength = true;
-                }
-                i++;
+            if (parsedLatex[i].value === '+' || parsedLatex[i].value === '-') {
+                limitLength = (i);
+                foundLimitLength = true;
             }
-
-            if (!foundLimitLength) {
-                limitLength = parsedLatex.length;
-            }
+            i++;
         }
 
-        return limitLength;
+        if (!foundLimitLength) {
+            limitLength = parsedLatex.length;
+        }
     }
 
-    return {
-        getLimitLength: getLimitLength
-    };
-});
+    return limitLength;
+}

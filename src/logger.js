@@ -3,26 +3,18 @@
  * @copyright  2018 NTNU
  */
 
-define([], function () {
+const debugging = false;
+const warning = false;
 
-    const debugging = false;
+export const debug = (msg) => {
 
-    const debug = (msg) => {
-
-        if (debugging) {
-            console.debug(msg)
-        }
-    };
-
-    function warn(msg) {
-        if (debugging) {
-            console.warn(msg);
-        }
+    if (debugging) {
+        console.debug(msg)
     }
+};
 
-
-    return {
-        debug: debug,
-        warn: warn
-    };
-});
+export function warn(msg) {
+    if (warning) {
+        console.warn(msg);
+    }
+}

@@ -3,16 +3,13 @@
  * @copyright  2018 NTNU
  */
 
-define(function () {
-    /**
-     * Simple token class.
-     */
-    class Token {
-        constructor(type, value,) {
-            this.value = value;
-            this.type = type;
-        }
-    }
 
-    return Token;
-});
+/**
+ * Simple token class.
+ */
+export class Token {
+    constructor(type, value,) {
+        this.value = value;
+        this.type = type;
+    }
+}

@@ -3,44 +3,49 @@
  * @copyright  2018 NTNU
  */
 
-define(['./tokens/greek-letters'], function (greekLetters) {
+import {isGreekLetter} from './tokens/greek-letters';
 
-    const MACROS = [
-        'begin', 'end', 'to', 'cdot', 'times', 'ast', 'div', 'mod', 'pm', 'frac', 'mathrm'
-    ];
+export const MACROS = new Map([
+    ['begin', null],
+    ['end', null],
+    ['to', null],
+    ['cdot', null],
+    ['times', null],
+    ['ast', null],
+    ['div', null],
+    ['mod', null],
+    ['pm', null],
+    ['frac', null],
+    ['mathrm', null],
+    ['infty', 'inf']
+]);
 
-    // override macro type by setting an
-    const MACROS_OVERRIDE = new Map([
-        ['cdot', {type: 'operator', operatorType: 'infix', value: '*'}],
-        ['times', {type: 'operator', operatorType: 'infix', value: '*'}],
-        ['ast', {type: 'operator', operatorType: 'infix', value: '*'}],
+// override macro type by setting an
+export const MACROS_OVERRIDE = new Map([
+    ['cdot', {type: 'operator', operatorType: 'infix', value: '*'}],
+    ['times', {type: 'operator', operatorType: 'infix', value: '*'}],
+    ['ast', {type: 'operator', operatorType: 'infix', value: '*'}],
 
-        ['div', {type: 'operator', operatorType: 'infix', value: '/'}],
-        ['mod', {type: 'operator', operatorType: 'infix', value: '%'}],
-        ['pm', {type: 'operator', operatorType: 'infix', value: '+-'}], // The sign ± dosn't work with Maxima.
-    ]);
+    ['div', {type: 'operator', operatorType: 'infix', value: '/'}],
+    ['mod', {type: 'operator', operatorType: 'infix', value: '%'}],
+    ['pm', {type: 'operator', operatorType: 'infix', value: '+-'}], // The sign ± dosn't work with Maxima.
 
-    function isMacro(macroName) {
-        let i = 0;
-        let isMatch = false;
-        while (i < MACROS.length && !isMatch) {
-            if (MACROS[i] === macroName) {
-                isMatch = true;
-            }
-            i++;
-        }
+    ['infty', {type: 'token', value: 'inf'}],
 
-        if (greekLetters.isGreekLetter(macroName)) {
-            isMatch = true;
-        }
+]);
 
+export function isMacro(macroName) {
+    let isMatch = false;
 
-        return isMatch;
+    let macro = MACROS.get(macroName);
+    if(macro !== undefined) {
+        isMatch = true;
     }
 
-    return {
-        isMacro: isMacro,
-        MACROS: MACROS,
-        MACROS_OVERRIDE: MACROS_OVERRIDE
-    };
-});
+    if (isGreekLetter(macroName)) {
+        isMatch = true;
+    }
+
+
+    return isMatch;
+}

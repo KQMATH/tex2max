@@ -3,11 +3,11 @@
  * @copyright  2018 NTNU
  */
 
-define({
+export const RESERVED_WORDS = {
     INTEGRATION_END: {
         name: 'INTEGRATION_END',
         symbol: null,
         regex: /(d)[A-z]/,
         type: "integral_end"
     }
-});
+};

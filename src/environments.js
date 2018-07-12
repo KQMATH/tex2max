@@ -3,9 +3,7 @@
  * @copyright  2018 NTNU
  */
 
-define(function () {
-    return [
-        'matrix', 'pmatrix', 'bmatrix', 'Bmatrix',
-        'vmatrix', 'Vmatrix', 'smallmatrix'
-    ];
-});
+export const environments = [
+    'matrix', 'pmatrix', 'bmatrix', 'Bmatrix',
+    'vmatrix', 'Vmatrix', 'smallmatrix'
+];
