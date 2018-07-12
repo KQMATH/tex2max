@@ -17,7 +17,8 @@ export const MACROS = new Map([
     ['pm', null],
     ['frac', null],
     ['mathrm', null],
-    ['infty', 'inf']
+    ['infty', 'inf'],
+
 ]);
 
 // override macro type by setting an
@@ -30,21 +31,19 @@ export const MACROS_OVERRIDE = new Map([
     ['mod', {type: 'operator', operatorType: 'infix', value: '%'}],
     ['pm', {type: 'operator', operatorType: 'infix', value: '+-'}], // The sign ± dosn't work with Maxima.
 
-    ['infty', {type: 'token', value: 'inf'}],
-
+    // ['infty', {type: 'token', value: 'inf'}],
 ]);
 
 export function isMacro(macroName) {
     let isMatch = false;
-
     let macro = MACROS.get(macroName);
     if(macro !== undefined) {
         isMatch = true;
     }
 
-    if (isGreekLetter(macroName)) {
+    /*if (isGreekLetter(macroName)) {
         isMatch = true;
-    }
+    }*/
 
 
     return isMatch;

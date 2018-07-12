@@ -9,9 +9,15 @@ export const DEFAULTS = {
     onlySingleVariables: false,
     handleEquation: false,
     addTimesSign: true,
-    onlyGreekLettersAsName: true, // TODO Implement onlyGreekLettersAsName option
-    onlyGreekLettersAsSymbol: false, // TODO Implement onlyGreekLettersAsSymbol option
+    onlyGreekName: false, // TODO Implement onlyGreekName option
+    onlyGreekSymbol: false, // TODO Implement onlyGreekSymbol option
 };
+
+function onlyOneTrue() {
+
+    // TODO add restrictions so that of two options, only one can be sat to true.
+
+}
 
 export function setOptions(userOptions) {
     options = {};

@@ -13,7 +13,7 @@ import {handleLowerSumArguments, handleUpperAndLowerArgsSum} from "./handlers/su
 import {handleLimitArguments} from "./handlers/limit";
 import {getOptions} from "../options";
 import * as logger from "../logger";
-import {getSymbol} from "../tokens/greek-letters";
+import {convertSymbols, getName, getSymbol, isGreekLetter} from "../tokens/greek-letters";
 
 
 /**
@@ -96,9 +96,10 @@ export function transpiler(parsedLatex) {
         function doOperator() {
             const previousToken = parsedLatex[index - 1];
 
-            if (index === 0 && (item.value === '+' || item.value === '*' || item.value === '-')) {
+
+            if (index === 0 && (item.value === '+' || item.value === '*')) {
                 logger.debug('Structure starts with * or +, ignoring');
-            } else if (index === 0 && item.operatorType !== 'prefix') {
+            } else if (index === 0 && item.operatorType !== 'prefix' && item.value !== '-') {// TODO add "-" as valid prefix
                 throw new Error('Operator ' + item.value + ' is not an prefix operator');
 
             } else {
@@ -138,10 +139,22 @@ export function transpiler(parsedLatex) {
         }
 
         function doVariable() {
+            let variableString = "";
 
             addTimesSign(index, {type: 'operator', operatorType: 'infix'});
 
-            transpiledString += item.value;
+            if (getName(item.value) !== null) {
+                let letter = getName(item.value);
+                if (options.onlyGreekSymbol) {
+                    letter = getSymbol(letter);
+                }
+                logger.debug('greek letter ' + letter);
+                variableString += letter;
+            } else {
+                variableString += item.value;
+            }
+
+            transpiledString += variableString;
         }
 
         function doGroup() {
@@ -159,10 +172,36 @@ export function transpiler(parsedLatex) {
             let startIndex = index;
 
             if (getSymbol(item.value) !== null) {
-                const letter = getSymbol(item.value);
+            // Token is greek letter name
+                let letter = item.value;
+                if (options.onlyGreekSymbol) {
+                    letter = getSymbol(letter);
+                }
                 logger.debug('greek letter ' + letter);
                 tokenString += letter;
             }
+
+            if (getName(item.value) !== null) {
+                // Token is greek letter symbol
+                let letter = item.value;
+                if (options.onlyGreekName) {
+                    letter = getName(letter);
+                }
+                logger.debug('greek letter ' + letter);
+                tokenString += letter;
+            }
+
+
+             if (isMacro(item.value)) {
+                 let macro = MACROS.get(item.value);
+                 if (macro === null) {
+                     logger.debug("Skipping macro " + item.value)
+                 } else if (macro !== undefined) {
+                     logger.debug("Adding macro " + macro);
+                     tokenString += macro;
+                 }
+             }
+
 
             // Handle fraction
             if (item.value === 'frac') {
@@ -178,21 +217,7 @@ export function transpiler(parsedLatex) {
             }
 
 
-            if (isMacro(item.value)) {
-                let macro = MACROS.get(item.value);
-
-                if (macro === null) {
-                    tokenString += item.value;
-                } else {
-                    tokenString += macro;
-                }
-            }
-
-            // tokenString += item.value;
-            console.log(startIndex + " :: " + tokenString + " :: " + item.value)
-
-            if (startIndex > 0 && tokenString !== "" && isMacro(item.value)) {
-                console.log("kokokok" + isMacro(item.value) + " :: " + item.value)
+            if (startIndex > 0 && tokenString !== "" && (isMacro(item.value) || isGreekLetter(item.value))) {
                 addTimesSign(startIndex, {type: 'operator'});
             }
 
