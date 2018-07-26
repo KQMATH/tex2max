@@ -5,6 +5,7 @@
 
 
 import {transpiler} from "../maxima-transpiler";
+import {wrapForTranspilation} from "../../helpers/helpers";
 
 export function handleMatrix(parsedLatex) {
     let matrixString = "";
@@ -15,17 +16,13 @@ export function handleMatrix(parsedLatex) {
     let rowArray = [];
 
     for (let i = 0; i < parsedLatex.length; i++) {
-        const char = parsedLatex[i].value;
         const type = parsedLatex[i].type;
-        if (type === 'number') {
-            rowArray.push(char)
 
-        } else if (type === 'group') {
-            rowArray.push(transpiler(char))
-
-        } else if (type === 'DOUBLE_BACKSLASH') { // New row
+        if (type === 'DOUBLE_BACKSLASH') { // New row
             matrixArray.push(rowArray);
             rowArray = []; // Reset array
+        } else {
+            rowArray.push(transpiler(wrapForTranspilation(parsedLatex[i])));
         }
     }
     matrixArray.push(rowArray); // Push last row
