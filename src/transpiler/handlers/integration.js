@@ -4,6 +4,7 @@
  */
 
 import {transpiler} from "../maxima-transpiler";
+import {wrapForTranspilation} from "../../helpers/helpers";
 import * as logger from "../../logger";
 
 /**
@@ -62,23 +63,15 @@ export function handleUpperAndLowerArgs(parsedLatex) {
     for (let j = 0; j < 2; j++) {
         if (parsedLatex[index + j].value === '_') {
             index++;
-            if (parsedLatex[index + j].type === 'group') {
-                lowerLimit = transpiler(parsedLatex[index + j].value);
 
-            } else {
-                lowerLimit = parsedLatex[index + j].value;
+            lowerLimit = transpiler(wrapForTranspilation(parsedLatex[index + j]));
 
-            }
         } else if (parsedLatex[index + j].value === '^') {
 
             index++;
-            if (parsedLatex[index + j].type === 'group') {
-                upperLimit = transpiler(parsedLatex[index + j].value);
 
-            } else {
-                upperLimit = parsedLatex[index + j].value;
+            upperLimit = transpiler(wrapForTranspilation(parsedLatex[index + j]));
 
-            }
         } else {
             throw new Error('Finite integral must have both upper and lower limits');
         }

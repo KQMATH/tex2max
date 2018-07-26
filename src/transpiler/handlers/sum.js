@@ -3,7 +3,7 @@
  * @copyright  2018 NTNU
  */
 import {transpiler} from "../maxima-transpiler";
-import {checkForVariable} from "../../helpers/helpers";
+import {checkForVariable, wrapForTranspilation} from "../../helpers/helpers";
 
 export function handleUpperAndLowerArgsSum(parsedLatex) {
     let lowerLimit, upperLimit;
@@ -16,13 +16,8 @@ export function handleUpperAndLowerArgsSum(parsedLatex) {
 
         } else if (parsedLatex[index + j].value === '^') {
             index++;
+            upperLimit = transpiler(wrapForTranspilation(parsedLatex[index + j]));
 
-            if (parsedLatex[index + j].type === 'group') {
-                upperLimit = transpiler(parsedLatex[index + j].value);
-            } else {
-                upperLimit = parsedLatex[index + j].value;
-
-            }
         } else {
             throw new Error('Finite integral must have both upper and lover limits');
         }
@@ -37,7 +32,6 @@ export function handleUpperAndLowerArgsSum(parsedLatex) {
 
 export function handleLowerSumArguments(parsedLatex) {
 
-
     const indexVariable = parsedLatex[0];
     const equalSign = parsedLatex[1].value;
 
@@ -50,12 +44,7 @@ export function handleLowerSumArguments(parsedLatex) {
     let upperLim = parsedLatex[2];
     let value = "";
 
-    if (upperLim.type === 'group') {
-        value = transpiler(upperLim.value);
-    } else {
-        value = upperLim.value;
-    }
-
+    value = transpiler(wrapForTranspilation(upperLim));
 
     return {
         variable: indexVariable.value,

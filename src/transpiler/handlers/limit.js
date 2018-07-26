@@ -4,7 +4,7 @@
  */
 
 
-import {checkForVariable, searchForOccurrence} from "../../helpers/helpers";
+import {checkForVariable, searchForOccurrence, wrapForTranspilation} from "../../helpers/helpers";
 import {transpiler} from "../maxima-transpiler";
 import * as logger from "../../logger";
 
@@ -22,11 +22,7 @@ export function handleLimitArguments(limitArgs) {
     let upperLim = limitArgs[2];
     let value = "";
 
-    if (upperLim.type === 'group') {
-        value = transpiler(upperLim.value);
-    } else {
-        value = upperLim.value;
-    }
+    value = transpiler(wrapForTranspilation(upperLim));
 
     let direction = isOneSidedLimit(limitArgs.slice(2));
 

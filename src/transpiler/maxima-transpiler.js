@@ -257,23 +257,23 @@ export function transpiler(parsedLatex) {
                     throw new Error('Square root must be followed by [] or {}');
                 }
             } else if (item.value === 'lim') {
-                logger.debug('Found function limit');
+                logger.debug('Found function "limit"');
                 handleLimit();
 
             } else if (item.value === 'binom') {
-                logger.debug('Found function binomial');
+                logger.debug('Found function "binomial"');
                 handleBinomial();
 
             } else if (item.value === 'sum') {
-                logger.debug('Found function binomial');
+                logger.debug('Found function "sum"');
                 handleSum();
 
             } else if (item.value === 'integral') {
-                logger.debug('Found function integral');
+                logger.debug('Found function "integral"');
                 handleIntegral();
 
             } else if (nextItem.type === 'number' || nextItem.type === 'variable') {
-                logger.debug('Found literal function');
+                logger.debug('Found literal "function"');
 
                 transpiledString += item.value;
                 transpiledString += '(';
