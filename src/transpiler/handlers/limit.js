@@ -11,18 +11,18 @@ import * as logger from "../../logger";
 export function handleLimitArguments(limitArgs) {
 
     if (!checkForVariable(limitArgs[0])) {// Control for several expression before 'to'
-        throw new Error('Limit: variable must be a symbol');
+        throw new Error('Limit: "From" argument must be a symbol');
     } else if (!searchForOccurrence(limitArgs[1], 'value', 'to', false).isPresent) {
         throw new Error('Limit: no "to" token provided')
     } else if (limitArgs[2] === undefined) {
-        throw new Error('Limit: wrong number of arguments')
+        throw new Error('Limit: "To" argument missing')
     }
 
     let variable = limitArgs[0].value;
     let upperLim = limitArgs[2];
     let value = "";
 
-    value = transpiler(wrapForTranspilation(upperLim));
+    value += transpiler(wrapForTranspilation(upperLim));
 
     let direction = isOneSidedLimit(limitArgs.slice(2));
 
