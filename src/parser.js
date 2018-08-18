@@ -3,8 +3,8 @@
  * @copyright  2018 NTNU
  */
 
-import {functions} from "./functions";
 import {isMacro, MACROS_OVERRIDE} from "./macros";
+import {getFunctionName, isFunction} from "./functions";
 import {environments} from "./environments";
 import {TOKEN_TYPES} from "./tokens/tokens";
 import {RESERVED_WORDS} from "./reservedWords";
@@ -257,17 +257,6 @@ export function parseLatex(tokens) {
         };
     }
 
-
-    function isFunction(functionalWord) {
-        const isFunction = functions.reduce((acc, val) => {
-            return acc || val === functionalWord;
-        }, false);
-
-
-        return isFunction;
-    }
-
-
     function parseMacro(macroName) {
         let macro = null;
         let isMacroMatch = isMacro(macroName);
@@ -414,26 +403,15 @@ export function parseLatex(tokens) {
 
 
     function parseFunction(functionName) {
-        let function1 = {};
-        switch (functionName) {
-            case 'int':
-                function1 = {
-                    type: 'function',
-                    value: 'integral',
-                };
-                break;
+        let node = {};
+        let func = getFunctionName(functionName);
+        node = {
+            type: 'function',
+            value: func
+        };
 
-            default:
-                function1 = {
-                    type: 'function',
-                    value: functionName
-                };
-                break;
-        }
-
-        return function1;
+        return node;
     }
-
 
     function parseOperator() {
         logger.debug("Found operator");
