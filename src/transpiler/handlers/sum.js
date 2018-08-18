@@ -41,7 +41,7 @@ export function handleLowerSumArguments(parsedLatex) {
         throw new Error('Index must be assigned. Missing equal sign');
     }
 
-    let upperLim = parsedLatex[2];
+    let upperLim = parsedLatex.slice(2);
     let value = "";
 
     value = transpiler(wrapForTranspilation(upperLim));
