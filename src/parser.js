@@ -357,9 +357,8 @@ export function parseLatex(tokens) {
         logger.debug('Found backslash');
         let node = null;
 
-
-        if (peekType() === TOKEN_TYPES.BACKSLASH.regex) {
-
+        // TODO move into handleSpecialChar
+        if (peekType() === TOKEN_TYPES.BACKSLASH.name) {
             return {
                 type: 'DOUBLE_BACKSLASH',
                 value: consume() + consume()
