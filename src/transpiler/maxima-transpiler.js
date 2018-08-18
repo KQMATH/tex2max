@@ -5,6 +5,7 @@
 
 import {environmentLength} from "./handlers/environment";
 import {getLimitLength} from "./handlers/common";
+import {assertNotUndefined, getExpressionLength} from "./handlers/common";
 import {isMacro, MACROS} from '../macros';
 import {handleMatrix} from "./handlers/matrix";
 import {buildMaximaFunctionString} from "../helpers/helpers";
@@ -140,7 +141,6 @@ export function transpiler(parsedLatex) {
 
         function doVariable() {
             let variableString = "";
-
             addTimesSign(index, {type: 'operator', operatorType: 'infix'});
 
             if (getName(item.value) !== null) {
@@ -172,7 +172,7 @@ export function transpiler(parsedLatex) {
             let startIndex = index;
 
             if (getSymbol(item.value) !== null) {
-            // Token is greek letter name
+                // Token is greek letter name
                 let letter = item.value;
                 if (options.onlyGreekSymbol) {
                     letter = getSymbol(letter);
@@ -192,15 +192,15 @@ export function transpiler(parsedLatex) {
             }
 
 
-             if (isMacro(item.value)) {
-                 let macro = MACROS.get(item.value);
-                 if (macro === null) {
-                     logger.debug("Skipping macro " + item.value)
-                 } else if (macro !== undefined) {
-                     logger.debug("Adding macro " + macro);
-                     tokenString += macro;
-                 }
-             }
+            if (isMacro(item.value)) {
+                let macro = MACROS.get(item.value);
+                if (macro === null) {
+                    logger.debug("Skipping macro " + item.value)
+                } else if (macro !== undefined) {
+                    logger.debug("Adding macro " + macro);
+                    tokenString += macro;
+                }
+            }
 
 
             // Handle fraction
@@ -321,14 +321,14 @@ export function transpiler(parsedLatex) {
                     let limitArgs = parsedLatex[index + 2].value;
                     limitArgs = handleLimitArguments(limitArgs);
 
-                    if (parsedLatex[index + 3].type === 'group') {
-                        expression += transpiler(parsedLatex[index + 3].value);
-
-                    } else {
-                        let limitLength = getLimitLength(parsedLatex.slice((index + 3)));
+                    if (typeof parsedLatex[index + 3] !== 'undefined') {
+                        let limitLength = getExpressionLength(parsedLatex.slice((index + 3)));
 
                         expression += transpiler(parsedLatex.slice((index + 3), ((index + 3) + limitLength)));
                         index += (limitLength - 1);
+
+                    } else {
+                        throw new Error('Missing argument in limit')
                     }
 
                     limitString = buildMaximaFunctionString(
@@ -365,11 +365,15 @@ export function transpiler(parsedLatex) {
                     logger.debug('Sum: arguments are form ' + lowerArgAssignment + ' to ' + upperArg);
                 }
 
-                let sumLength = getLimitLength(parsedLatex.slice((index + 1)));
+                if (typeof parsedLatex[index + 1] !== 'undefined') {
+                    let sumLength = getExpressionLength(parsedLatex.slice((index + 1)));
 
-                expression += transpiler(parsedLatex.slice((index + 1), ((index + 1) + sumLength)));
-                index += (sumLength);
+                    expression += transpiler(parsedLatex.slice((index + 1), ((index + 1) + sumLength)));
+                    index += (sumLength);
 
+                } else {
+                    throw new Error('Missing argument in sum')
+                }
 
                 sumString += buildMaximaFunctionString(
                     'sum', expression, indexVariable, lowerArgAssignment, upperArg
@@ -386,6 +390,8 @@ export function transpiler(parsedLatex) {
                 let integralLength;
                 let isSymbolic = false;
 
+
+                assertNotUndefined(parsedLatex[index + 1], 'Missing argument in integral');
 
                 if (parsedLatex[index + 1].value !== '_' && parsedLatex[index + 1].value !== '^') {
                     // Symbolic integral
@@ -413,9 +419,12 @@ export function transpiler(parsedLatex) {
 
 
                 let unTranspiledIntegralLatex = parsedLatex.slice((index), ((index) + integralLength));
+                assertNotUndefined(unTranspiledIntegralLatex[unTranspiledIntegralLatex.length - 1], 'Missing argument in integral');
+
                 if (unTranspiledIntegralLatex[unTranspiledIntegralLatex.length - 1].value === '*') {
                     unTranspiledIntegralLatex.splice(-1, 1);
                 }
+
 
                 expression += transpiler(unTranspiledIntegralLatex);
 

@@ -44,7 +44,7 @@ export function handleLowerSumArguments(parsedLatex) {
     let upperLim = parsedLatex[2];
     let value = "";
 
-    value = transpiler(wrapForTranspilation(upperLim));
+    value += transpiler(wrapForTranspilation(upperLim));
 
     return {
         variable: indexVariable.value,

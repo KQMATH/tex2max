@@ -3,30 +3,36 @@
  * @copyright  2018 NTNU
  */
 
+export function assertNotUndefined(item, message) {
+    if (typeof item === 'undefined') {
+        throw new Error(message);
+    }
+}
 
-export function getLimitLength(parsedLatex) {
+export function getExpressionLength(parsedLatex) {
     // Locate the next operator + or -.
 
-    let limitLength = 0;
+    let expressionLength = 0;
 
     if (parsedLatex[0].type === 'group' && parsedLatex.length === 1) {
-        limitLength = 1;
+        expressionLength = 1;
     } else {
         let i = 0;
-        let foundLimitLength = false;
-        while (i < parsedLatex.length && !foundLimitLength) {
+        let foundExpressionLength = false;
+        while (i < parsedLatex.length && !foundExpressionLength) {
 
-            if (parsedLatex[i].value === '+' || parsedLatex[i].value === '-') {
-                limitLength = (i);
-                foundLimitLength = true;
+            if (parsedLatex[i].value === '+' || parsedLatex[i].value === '-' || parsedLatex[i].value === '+-') {
+                expressionLength = (i);
+                foundExpressionLength = true;
             }
             i++;
         }
 
-        if (!foundLimitLength) {
-            limitLength = parsedLatex.length;
+        if (!foundExpressionLength) {
+            expressionLength = parsedLatex.length;
         }
     }
 
-    return limitLength;
+    return expressionLength;
 }
+

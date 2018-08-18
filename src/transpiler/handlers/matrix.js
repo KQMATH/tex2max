@@ -6,6 +6,7 @@
 
 import {transpiler} from "../maxima-transpiler";
 import {wrapForTranspilation} from "../../helpers/helpers";
+import {assertNotUndefined} from "./common";
 
 export function handleMatrix(parsedLatex) {
     let matrixString = "";
@@ -16,6 +17,7 @@ export function handleMatrix(parsedLatex) {
     let rowArray = [];
 
     for (let i = 0; i < parsedLatex.length; i++) {
+        assertNotUndefined(parsedLatex[i], 'Missing argument in matrix');
         const type = parsedLatex[i].type;
 
         if (type === 'DOUBLE_BACKSLASH') { // New row
