@@ -3,7 +3,6 @@
  * @copyright  2018 NTNU
  */
 
-import {isGreekLetter} from './tokens/greek-letters';
 
 export const MACROS = new Map([
     ['begin', null],
@@ -16,12 +15,19 @@ export const MACROS = new Map([
     ['mod', null],
     ['pm', null],
     ['frac', null],
-    ['mathrm', null],
     ['infty', 'inf'],
+    ['operatorname', null],
 
+    // ['mathrm', null],
 ]);
 
-// override macro type by setting an
+
+export const IGNORED_MACROS = [
+    'left', 'right'
+];
+
+
+// Override macro nodes
 export const MACROS_OVERRIDE = new Map([
     ['cdot', {type: 'operator', operatorType: 'infix', value: '*'}],
     ['times', {type: 'operator', operatorType: 'infix', value: '*'}],
@@ -31,7 +37,7 @@ export const MACROS_OVERRIDE = new Map([
     ['mod', {type: 'operator', operatorType: 'infix', value: '%'}],
     ['pm', {type: 'operator', operatorType: 'infix', value: '+-'}], // The sign ± dosn't work with Maxima.
 
-    // ['infty', {type: 'token', value: 'inf'}],
+
 ]);
 
 export function isMacro(macroName) {
@@ -41,10 +47,19 @@ export function isMacro(macroName) {
         isMatch = true;
     }
 
-    /*if (isGreekLetter(macroName)) {
-        isMatch = true;
-    }*/
+    return isMatch;
+}
 
+export function isIgnoredMacro(macroName) {
+    let isMatch = false;
+
+    let i = 0;
+    while (!isMatch && i < IGNORED_MACROS.length) {
+        if (macroName === IGNORED_MACROS[i]) {
+            isMatch = true;
+        }
+        i++;
+    }
 
     return isMatch;
 }
