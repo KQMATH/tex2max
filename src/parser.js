@@ -24,70 +24,57 @@ export function parseLatex(tokens) {
     let index = 0;
     let structure = [];
 
-
     function addNode(obj) {
         structure.push(obj);
     }
-
 
     function consume() {
         logger.debug("Consuming position: " + index);
         return tokens[index++].value;
     }
 
-
     function skipToken() {
         logger.debug("Skip token at position: " + index);
         return tokens[index++].value;
     }
 
-
     function getCurrentChar() {
         return tokens[index] ? tokens[index].value : undefined;
     }
-
 
     function getCurrentType() {
         return tokens[index].type.name;
     }
 
-
     function peek() {
         return tokens[index + 1];
     }
-
 
     function peekType() {
         return tokens[index + 1] ? tokens[index + 1].type.name : null;
     }
 
-
     function peekValue() {
         return tokens[index + 1].value;
     }
-
 
     function lookBackValue() {
         let previousToken = tokens[index - 1];
         return previousToken ? previousToken.value : null;
     }
 
-
     function lookBack(position) {
         let previousToken = structure[structure.length - position];
         return previousToken ? previousToken.type : null;
     }
 
-
     function getRemainingTokens() {
         return tokens.slice(index + 1);
     }
 
-
     function parseString() {
         return consume();
     }
-
 
     function parseDigit() {
         logger.debug("- Single number");
@@ -96,7 +83,6 @@ export function parseLatex(tokens) {
             value: consume()
         };
     }
-
 
     function parseNumber() {
         logger.debug('Parsing number: ' + tokens[index].value);
@@ -121,7 +107,6 @@ export function parseLatex(tokens) {
         }
     }
 
-
     function parseWord() {
         logger.debug('- Found letter \"' + getCurrentChar() + '\"');
 
@@ -138,7 +123,6 @@ export function parseLatex(tokens) {
         return sequence;
     }
 
-
     function isReservedWord(word) {
         let isReserved = false;
         logger.debug('Checking ' + word + ' for reserved word');
@@ -153,7 +137,6 @@ export function parseLatex(tokens) {
         }
         return isReserved;
     }
-
 
     function handleReservedWord(word) {
         let reservedWordType = "";
@@ -177,7 +160,6 @@ export function parseLatex(tokens) {
             value: reservedWord
         }
     }
-
 
     function parseVariable() {
 
@@ -225,7 +207,6 @@ export function parseLatex(tokens) {
             value: word
         };
     }
-
 
     function parseGroup() {
         let bracket = "";
@@ -295,16 +276,14 @@ export function parseLatex(tokens) {
         return macro;
     }
 
-
     function isEnvironment(functionalWord) {
         const isEnvironment = environments.reduce((acc, val) => {
             return acc || val === functionalWord;
         }, false);
 
         logger.debug("Is acknowledged environment?: " + isEnvironment);
-        return isEnvironment; // TODO review function
+        return isEnvironment;
     }
-
 
     function parseEnvironment(state) {
         if (getCurrentChar() !== BRACKET_CURLY_OPEN) {
@@ -331,7 +310,6 @@ export function parseLatex(tokens) {
         }
 
     }
-
 
     function isSpecialChar(functionalWord) {
         let specials = [' ', '{', '}', '\\'];
