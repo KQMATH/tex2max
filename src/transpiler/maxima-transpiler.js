@@ -8,13 +8,19 @@ import {getLimitLength} from "./handlers/common";
 import {assertNotUndefined, getExpressionLength} from "./handlers/common";
 import {isMacro, MACROS} from '../macros';
 import {handleMatrix} from "./handlers/matrix";
-import {buildMaximaFunctionString} from "../helpers/helpers";
+import {
+    buildMaximaFunctionString,
+    wrapForTranspilation,
+    stripParenthesis,
+    stripAllParenthesis
+} from "../helpers/helpers";
 import {findIntegralEnd, handleUpperAndLowerArgs} from "./handlers/integration";
 import {handleLowerSumArguments, handleUpperAndLowerArgsSum} from "./handlers/sum";
 import {handleLimitArguments} from "./handlers/limit";
 import {getOptions} from "../options";
 import * as logger from "../logger";
 import {convertSymbols, getName, getSymbol, isGreekLetter} from "../tokens/greek-letters";
+import {getInverseTrigonometricFunction, isTrigonometricFunction} from "../functions";
 
 
 /**
@@ -272,19 +278,68 @@ export function transpiler(parsedLatex) {
                 logger.debug('Found function "integral"');
                 handleIntegral();
 
-            } else if (nextItem.type === 'number' || nextItem.type === 'variable') {
-                logger.debug('Found literal "function"');
-
-                transpiledString += item.value;
-                transpiledString += '(';
-                transpiledString += nextItem.value;
-                transpiledString += ')';
-                index++;
             } else {
-                transpiledString += item.value;
+                logger.debug('Found normal "function"');
+                handleNormalFunction();
 
             }
 
+
+            function handleNormalFunction() {
+                let expression = "";
+                let exponentiate = false;
+                let exponent;
+
+                let func = item.value;
+
+                assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func);
+
+                if (parsedLatex[index + 1].value === '^') {
+                    exponentiate = true;
+                    assertNotUndefined(parsedLatex[index + 2], 'Missing argument in function: ' + func + '^');
+
+                    exponent = transpiler(wrapForTranspilation(parsedLatex[index + 2]));
+                    exponent = stripParenthesis(exponent);
+
+                    if (stripAllParenthesis(exponent) === '-1') {
+                        logger.debug('Function is inverse');
+                        exponentiate = false;
+
+                        if (isTrigonometricFunction(func)) {
+                            let inverseFunc = getInverseTrigonometricFunction(func);
+                            if (inverseFunc !== null) {
+                                func = inverseFunc;
+                            } else {
+                                throw new Error('No inverse trigonometric function found for ' + func);
+                            }
+                        } else {
+                            throw new Error('Function "' + func + '" is not an trigonometric function');
+                        }
+                    }
+                    index += 2;
+                }
+
+                expression += func;
+
+                if (exponentiate) {
+                    assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func + '^' + transpiler(wrapForTranspilation(parsedLatex[index].value)));
+                } else {
+                    assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func);
+                }
+
+                // Find length of expression....
+                let functionLength = getExpressionLength(parsedLatex.slice((index + 1)));
+                expression += transpiler(wrapForTranspilation(parsedLatex.slice((index + 1), ((index + 1) + functionLength))));
+                index += functionLength - 1;
+
+                if (exponentiate) {
+                    expression = '(' + expression + ')' + '^' + exponent;
+                }
+
+                index++;
+
+                transpiledString += expression;
+            }
 
             function handleBinomial() {
                 // TODO doesn't handle \binom234 as 2 and 3 needs to be parsed as single digits... this is a parser problem...

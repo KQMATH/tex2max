@@ -19,7 +19,7 @@ export function handleLimitArguments(limitArgs) {
     }
 
     let variable = limitArgs[0].value;
-    let upperLim = limitArgs[2];
+    let upperLim = limitArgs.slice(2);
     let value = "";
 
     value += transpiler(wrapForTranspilation(upperLim));

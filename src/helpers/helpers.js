@@ -154,14 +154,18 @@ export function searchForOccurrence(parsedLatex, tokenType, query, deepSearch) {
     return isPresentObj;
 }
 
-export function wrapForTranspilation(item){
-    if (typeof item === "object" && typeof item !== "string") {
-        return [item];
-    } else if (Array.isArray(item)) {
+export function wrapForTranspilation(item) {
+    if (Array.isArray(item)) {
         return item;
+    } else if (typeof item === "object" && typeof item !== "string") {
+        return [item];
     }
 }
 
 export function stripParenthesis(mathString) {
     return mathString.substr(1, mathString.length - 2);
+}
+
+export function stripAllParenthesis(mathString) {
+    return mathString.replace(/[()]/g, '');
 }
