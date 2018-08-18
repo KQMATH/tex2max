@@ -364,6 +364,15 @@ export function parseLatex(tokens) {
         return result;
     }
 
+    function parseOperatorname() {
+        let node = null;
+        skipToken(); // Skip bracket
+        let functionalWord = parseWord();
+        node = parseFunction(functionalWord);
+        skipToken(); // Skip bracket
+        return node;
+    }
+
     function handleBackslash() {
         logger.debug('Found backslash');
         let node = null;
@@ -392,6 +401,8 @@ export function parseLatex(tokens) {
             node = parseEnvironment('begin');
         } else if (functionalWord === 'end') {
             node = parseEnvironment('end');
+        } else if (functionalWord === 'operatorname') {
+            node = parseOperatorname()
         } else if (isFunction(functionalWord)) {
             node = parseFunction(functionalWord);
         } else {
