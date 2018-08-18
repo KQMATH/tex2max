@@ -4,7 +4,7 @@
  */
 
 import {functions} from "./functions";
-import {isMacro, MACROS_OVERRIDE} from "./macros";
+import {isIgnoredMacro, isMacro, MACROS, MACROS_OVERRIDE} from "./macros";
 import {environments} from "./environments";
 import {TOKEN_TYPES} from "./tokens/tokens";
 import {RESERVED_WORDS} from "./reservedWords";
@@ -288,8 +288,10 @@ export function parseLatex(tokens) {
                 type: 'token',
                 value: macroName
             }
+        } else if (isIgnoredMacro(macroName)) {
+            macro = null;
         } else {
-            logger.warn('Encountered an unsupported macro \"' + macroName + '\", ignoring..')
+            throw new Error('Encountered an unsupported macro: ' + macroName);
         }
 
         return macro;
