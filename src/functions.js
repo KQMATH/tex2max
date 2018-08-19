@@ -7,6 +7,7 @@ import * as logger from "./logger";
 
 
 export const FUNCTIONS = new Map([
+    ['lg', null],
     ['log', null],
     ['ln', null],
     ['sqrt', null],
