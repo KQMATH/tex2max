@@ -104,8 +104,8 @@ export function transpiler(parsedLatex) {
             const previousToken = parsedLatex[index - 1];
 
 
-            if (index === 0 && (item.value === '+' || item.value === '*')) {
-                logger.debug('Structure starts with * or +, ignoring');
+            if (index === 0 && (item.value === '+')) {
+                logger.debug('Structure starts with +, ignoring');
             } else if (index === 0 && item.operatorType !== 'prefix' && item.value !== '-') {// TODO add "-" as valid prefix
                 throw new Error('Operator ' + item.value + ' is not an prefix operator');
 
@@ -135,7 +135,7 @@ export function transpiler(parsedLatex) {
 
 
             if ((item.operatorType === 'infix' || item.operatorType === 'prefix') && index === (parsedLatex.length - 1)) {
-                throw new Error('Operator ' + item.value + ' is an invalid end character in ' + getCurrentTranspiledString());
+                throw new Error('Operator ' + item.value + ' is an invalid end character.');
             }
         }
 
