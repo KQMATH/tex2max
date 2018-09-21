@@ -188,7 +188,12 @@ export function parseLatex(tokens) {
                 index = backtrack + reservedWord.index;
                 word = word.substr(0, (reservedWord.index));
 
-                if (options.onlySingleVariables) { // Only produce single-char variables
+                if (options.onlySingleVariables === true && options.addTimesSign === false) {
+                    // Assert only single variables if onlySingleVariables- and addTimesSign options are sat to true and false.
+                    if (word.length > 1) {
+                        throw new Error('The current options only allow for single variables');
+                    }
+                } else if (options.onlySingleVariables) { // Only produce single-char variables
                     index = backtrack;
                     word = consume();
                 }
@@ -197,6 +202,13 @@ export function parseLatex(tokens) {
                 index = backtrack + reservedWordLength;
                 word = reservedWord[0];
             }
+
+        } else if (options.onlySingleVariables === true && options.addTimesSign === false) {
+            // Assert only single variables if onlySingleVariables- and addTimesSign options are sat to true and false.
+            if (word.length > 1) {
+                throw new Error('The current options only allow for single variables');
+            }
+
         } else if (options.onlySingleVariables) { // Only produce single-char variables
             index = backtrack;
             word = consume();
