@@ -4,6 +4,7 @@
  */
 import {transpiler} from "../maxima-transpiler";
 import {checkForVariable, wrapForTranspilation} from "../../helpers/helpers";
+import {assertNotUndefined} from "./common";
 
 export function handleUpperAndLowerArgsSum(parsedLatex) {
     let lowerLimit, upperLimit;
@@ -32,7 +33,10 @@ export function handleUpperAndLowerArgsSum(parsedLatex) {
 
 export function handleLowerSumArguments(parsedLatex) {
 
+    assertNotUndefined(parsedLatex[0], 'Missing index');
     const indexVariable = parsedLatex[0];
+
+    assertNotUndefined(parsedLatex[1], 'Index must be assigned. Missing equal sign');
     const equalSign = parsedLatex[1].value;
 
     if (!checkForVariable(indexVariable)) {
