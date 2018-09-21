@@ -46,7 +46,7 @@ npm run build
 ## Feedback:
 **Project lead:** Hans Georg Schaathun: <hasc@ntnu.no>
 
-**Developer:** André Storhaug: <andr3.storhaug+code@gmail.com>
+**Developer:** André Storhaug: <andr3.storhaug@gmail.com>
 
 ## License
 TeX2Max is Licensed under the [GNU General Public, License Version 3](https://github.com/KQMATH/tex2max/blob/master/LICENSE).
