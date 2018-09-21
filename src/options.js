@@ -1,5 +1,5 @@
 /**
- * @author     André Storhaug <andr3.storhaug+code@gmail.com>
+ * @author     André Storhaug <andr3.storhaug@gmail.com>
  * @copyright  2018 NTNU
  */
 
