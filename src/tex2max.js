@@ -20,7 +20,7 @@ import {isEquation, stripParenthesis} from "./helpers/helpers";
 
 /**
  * Globally exported API class.
- * Represents a TeX2Max class for handeling translation/transpilation of LaTeX to Maxima code.
+ * Represents a TeX2Max class for handling translation/transpilation of LaTeX to Maxima code.
  * @param  {Object} userOptions Optional options
  */
 export class TeX2Max {
@@ -33,23 +33,42 @@ export class TeX2Max {
         this.lastResult = "";
     }
 
+    /**
+     * Gets the last latex input.
+     * @returns {string}
+     */
     getLastInput() {
         return this.lastInput()
     }
 
+    /**
+     * Gets the last conversion result.
+     * @returns {string} the last conversion result (Maxima code)
+     */
     getLastResult() {
         return this.lastResult;
     }
 
     /**
+     * Updates the TeX2Max options. If one or more settings passed as parameter are missing,
+     * defaults defined in {@link DEFAULTS} will be used
+     * @param userOptions
+     */
+    updateOptions(userOptions) {
+        setOptions(userOptions);
+        this.options = getOptions();
+    }
+
+    /**
+     * Converts a latex input string to Maxima code.
      * @param  {String} latex The latex to parse
+     * @returns {*}
      */
     toMaxima(latex) {
         setOptions(this.options);
         let maximaExpression;
 
         this.lastInput = latex;
-
 
         let scannerResult = scan(latex);
         logger.debug(scannerResult);
