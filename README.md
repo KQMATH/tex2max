@@ -21,13 +21,16 @@ const converter = new tex2max.TeX2Max();
 ```
 
 The TeX2Max class also support multiple optional configurations. These should be passed as an object to the TeX2Max class object.
+If no manual configurations are set, default options are used.
 #### Default options
 ```js
 const config = {
-        onlySingleVariables: false,
-        handleEquation: false,
-        addTimesSign: true,
-    };
+    onlySingleVariables: false,
+    handleEquation: false,
+    addTimesSign: true,
+    onlyGreekName: false,
+    onlyGreekSymbol: false,
+};
 ```
 
 ## Build instructions
@@ -41,6 +44,10 @@ git clone git://github.com/KQMATH/tex2max.git
 Enter the TeX2Max directory and run the build script:
 ```bash
 npm run build
+```
+For a minified version, run:
+```bash
+npm run build:min
 ```
 
 ## Feedback:
