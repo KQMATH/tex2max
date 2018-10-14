@@ -1,16 +1,19 @@
 {
-  "name": "tex2max",
+  "name": "TeX2Max",
   "version": "1.0.0",
   "description": "LaTeX math to Maxima code converter",
-  "main": "TeX2Max.js",
+  "main": "tex2max.js",
   "scripts": {
     "build": "webpack",
     "build:min": "webpack -p",
     "watch": "webpack --watch"
   },
-  "repository": "https://github.com/KQMATH/tex2max.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KQMATH/tex2max.git"
+  },
   "author": {
-    "name": "Andre Storhaug",
+    "name": "André Storhaug",
     "email": "andr3.storhaug@gmail.com",
     "url": "https://github.com/andstor"
   },
@@ -18,6 +21,7 @@
   "bugs": {
     "url": "https://github.com/KQMATH/tex2max/issues"
   },
+  "homepage": "https://github.com/KQMATH/tex2max",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
