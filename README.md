@@ -30,6 +30,7 @@ const config = {
     addTimesSign: true,
     onlyGreekName: false,
     onlyGreekSymbol: false,
+    debugging: false
 };
 ```
 
