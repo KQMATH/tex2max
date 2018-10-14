@@ -322,7 +322,7 @@ export function transpiler(parsedLatex) {
                 expression += func;
 
                 if (exponentiate) {
-                    assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func + '^' + transpiler(wrapForTranspilation(parsedLatex[index].value)));
+                    assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func + '^' + transpiler(wrapForTranspilation(parsedLatex[index])));
                 } else {
                     assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func);
                 }
