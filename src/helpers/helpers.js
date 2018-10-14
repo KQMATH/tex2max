@@ -163,7 +163,13 @@ export function wrapForTranspilation(item) {
 }
 
 export function stripParenthesis(mathString) {
-    return mathString.substr(1, mathString.length - 2);
+    let openingParenthesis = mathString.charAt(0);
+    let closingParenthesis = mathString.charAt(-1);
+    if (openingParenthesis.match(/[({\[]/) || closingParenthesis.match(/[)}\]]/)) {
+        return mathString.substr(1, mathString.length - 2);
+    } else {
+        return mathString;
+    }
 }
 
 export function stripAllParenthesis(mathString) {
