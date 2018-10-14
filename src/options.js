@@ -13,6 +13,7 @@ export const DEFAULTS = {
     addTimesSign: true,
     onlyGreekName: false,
     onlyGreekSymbol: false,
+    debugging: false
 };
 
 /**
