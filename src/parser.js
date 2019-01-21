@@ -113,13 +113,13 @@ export function parseLatex(tokens) {
         let sequence = "";
 
         if (peekType() === TOKEN_TYPES.STRING_LITERAL.name) {
-            logger.debug(', continuing parsing')
+            logger.debug(', Continuing parsing')
             sequence = consume() + parseWord(TOKEN_TYPES.STRING_LITERAL.name);
-            logger.debug('current word: ' + sequence)
+            logger.debug('Current word: ' + sequence)
         } else {
             sequence = consume();
         }
-        logger.debug('current sequence: ' + sequence);
+        logger.debug('Current sequence: ' + sequence);
         return sequence;
     }
 
@@ -169,7 +169,7 @@ export function parseLatex(tokens) {
 
         word = parseWord();
 
-        logger.debug('current word: ' + word);
+        logger.debug('Current word: ' + word);
 
 
         // Check for reserved variable words
