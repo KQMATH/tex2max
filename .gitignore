@@ -1,0 +1,12 @@
+# JetBrains IDEs: IntelliJ
+.idea/
+
+
+# Node
+node_modules
+dist
+npm-debug.log
+.env
+
+# Windows
+.DS_Store
