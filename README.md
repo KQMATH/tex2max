@@ -2,29 +2,72 @@
 TeX2Max is a JavaScript library for converting LaTeX math to Maxima code.
 
 ## Environments in which to use TeX2Max
-TeX2Max supports AMD and CommonJS, in addition to normal browser support.
+TeX2Max supports Node and AMD, in addition to normal browser support.
 
-## Usage
-Download the [latest standalone JavaScript file (ES5)](https://github.com/KQMATH/tex2max/releases/latest)
+## Main
+```text
+dist/
+├── tex2max.amd.js        (AMD)
+├── tex2max.amd.min.js    (AMD, compressed)
+├── tex2max.js            (UMD)
+├── tex2max.min.js        (UMD, compressed)
+├── tex2max.common.js     (CommonJS, default)
+└── tex2max.common.min.js (CommonJS, compressed)
+```
 
-#### AMD
+## Getting started
+
+### Installation
+
+```shell
+npm install tex2max
+```
+
+In browser:
+
+```html
+<script src="/path/to/tex2max.js"></script>
+```
+
+The [unpkg](https://unpkg.com) provides CDN support for tex2max.js's JavaScript. You can find the links [here](https://unpkg.com/tex2max).
+
+Alternativeley, you can download the [latest standalone JavaScript files (ES5)](https://github.com/KQMATH/tex2max/releases/latest)
+
+### Usage
+#### Syntax
+```
+new tex2max(options)
+```
+* options (optional)
+  * Type: Object
+  * The options for the converter. Check out the available [options](#options).
+
+#### Examples
+##### Node
 ```js
-define(['./path/to/TeX2Max'], function(TeX2Max_Module) {
-    const converter = new TeX2max_Module.TeX2Max();
+const TeX2Max = require('tex2max');
+const converter = new TeX2Max(options);
+```
+
+##### AMD
+```js
+define(['./path/to/tex2max.amd'], function(TeX2Max) {
+    const converter = new TeX2Max(options);
 });
 ```
 
-#### Window
+##### Window
 ```js
-const config = {};
-const converter = new tex2max.TeX2Max();
+const converter = new tex2max(options);
 ```
+[⬆ back to top](#tex2max)
 
+## Options
 The TeX2Max class also support multiple optional configurations. These should be passed as an object to the TeX2Max class object.
 If no manual configurations are set, default options are used.
 #### Default options
 ```js
-const config = {
+const options = {
     onlySingleVariables: false,
     handleEquation: false,
     addTimesSign: true,
@@ -46,15 +89,13 @@ Enter the TeX2Max directory and run the build script:
 ```bash
 npm run build
 ```
-For a minified version, run:
-```bash
-npm run build:min
-```
 
 ## Feedback:
-**Project lead:** Hans Georg Schaathun: <hasc@ntnu.no>
+**Project lead:** Hans Georg Schaathun <hasc@ntnu.no>
 
-**Developer:** André Storhaug: <andr3.storhaug@gmail.com>
+**Developer:** [André Storhaug](https://github.com/andstor) <andr3.storhaug@gmail.com>
 
 ## License
 TeX2Max is Licensed under the [GNU General Public, License Version 3](https://github.com/KQMATH/tex2max/blob/master/LICENSE).
+
+[⬆ back to top](#tex2max)
