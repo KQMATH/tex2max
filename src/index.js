@@ -23,7 +23,7 @@ import {isEquation, stripParenthesis} from "./helpers/helpers";
  * Represents a TeX2Max class for handling translation/transpilation of LaTeX to Maxima code.
  * @param  {Object} userOptions Optional options
  */
-export class TeX2Max {
+ class TeX2Max {
 
     constructor(userOptions) {
         setOptions(userOptions);
@@ -92,3 +92,5 @@ export class TeX2Max {
         return maximaExpression;
     }
 }
+
+export default TeX2Max;

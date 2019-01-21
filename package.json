@@ -1,12 +1,13 @@
 {
-  "name": "TeX2Max",
+  "name": "tex2max",
   "version": "1.0.0",
   "description": "LaTeX math to Maxima code converter",
-  "main": "tex2max.js",
+  "main": "dist/tex2max.common.js",
+  "unpkg": "dist/tex2max.js",
   "scripts": {
-    "build": "webpack",
-    "build:min": "webpack -p",
-    "watch": "webpack --watch"
+    "build": "parallel-webpack",
+    "watch": "parallel-webpack --watch",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -21,11 +22,17 @@
   "bugs": {
     "url": "https://github.com/KQMATH/tex2max/issues"
   },
+  "files": [
+    "lib",
+    "src",
+    "LICENSE"
+  ],
   "homepage": "https://github.com/KQMATH/tex2max",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
+    "parallel-webpack": "^2.3.0",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8"
   }
