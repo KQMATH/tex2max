@@ -1,6 +1,6 @@
 {
   "name": "tex2max",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "LaTeX math to Maxima code converter",
   "main": "dist/tex2max.common.js",
   "unpkg": "dist/tex2max.js",
@@ -13,6 +13,11 @@
     "type": "git",
     "url": "https://github.com/KQMATH/tex2max.git"
   },
+  "keywords": [
+    "latex",
+    "maxima",
+    "converter"
+  ],
   "author": {
     "name": "André Storhaug",
     "email": "andr3.storhaug@gmail.com",

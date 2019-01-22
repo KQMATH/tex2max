@@ -8,11 +8,8 @@ TeX2Max supports Node and AMD, in addition to normal browser support.
 ```text
 dist/
 ├── tex2max.amd.js        (AMD)
-├── tex2max.amd.min.js    (AMD, compressed)
 ├── tex2max.js            (UMD)
-├── tex2max.min.js        (UMD, compressed)
-├── tex2max.common.js     (CommonJS, default)
-└── tex2max.common.min.js (CommonJS, compressed)
+└── tex2max.common.js     (CommonJS, default)
 ```
 
 ## Getting started
