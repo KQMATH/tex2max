@@ -13,6 +13,11 @@
     "type": "git",
     "url": "https://github.com/KQMATH/tex2max.git"
   },
+  "keywords": [
+    "latex",
+    "maxima",
+    "converter"
+  ],
   "author": {
     "name": "André Storhaug",
     "email": "andr3.storhaug@gmail.com",
