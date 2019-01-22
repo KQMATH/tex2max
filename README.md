@@ -1,4 +1,6 @@
 # TeX2Max
+[![npm version](http://img.shields.io/npm/v/tex2max.svg?style=flat)](https://npmjs.org/package/tex2max "View this project on npm")
+
 TeX2Max is a JavaScript library for converting LaTeX math to Maxima code.
 
 ## Environments in which to use TeX2Max
