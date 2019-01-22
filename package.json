@@ -1,6 +1,6 @@
 {
   "name": "tex2max",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "LaTeX math to Maxima code converter",
   "main": "dist/tex2max.common.js",
   "unpkg": "dist/tex2max.js",
