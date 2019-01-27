@@ -57,24 +57,80 @@ define(['./path/to/tex2max.amd'], function(TeX2Max) {
 
 ##### Window
 ```js
-const converter = new tex2max(options);
+const TeX2Max = window.tex2max;
+const converter = new TeX2Max(options);
 ```
 [⬆ back to top](#tex2max)
 
 ## Options
-The TeX2Max class also support multiple optional configurations. These should be passed as an object to the TeX2Max class object.
-If no manual configurations are set, default options are used.
-#### Default options
-```js
-const options = {
-    onlySingleVariables: false,
-    handleEquation: false,
-    addTimesSign: true,
-    onlyGreekName: false,
-    onlyGreekSymbol: false,
-    debugging: false
-};
-```
+The TeX2Max class also support multiple optional configurations. These should be passed as an object to the TeX2Max class object. If no manual configurations are set, default options are used.
+
+### onlySingleVariables
+- Type: `Boolean`
+- Default: `false`
+
+Enable to only allow single variable names.
+
+### handleEquation
+- Type: `Boolean`
+- Default: `false`
+
+Enable to let Maxima [solve](http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve) an algebraic equation.
+
+### addTimesSign
+- Type: `Boolean`
+- Default: `true`
+
+Add multiplication sign where multiplication is implied.
+
+### onlyGreekName
+- Type: `Boolean`
+- Default: `false`
+
+Enable to convert all greek letters to names.
+
+### onlyGreekSymbol
+- Type: `Boolean`
+- Default: `false`
+
+Enable to convert all greek letters to symbols.
+
+### debugging
+- Type: `Boolean`
+- Default: `false`
+
+Enable to produce debugging info.
+
+## Methods
+
+### toMaxima(latex)
+- **latex**:
+  - Type: `String`
+  - LaTeX math string.
+
+- (return value):
+  - Type: `String`
+  - Maxima code string.
+
+Convert LaTeX math into Maxima code.
+
+### updateOptions(options)
+- **options** (optional):
+  - Type: Object
+  - Default: See the defaults for all the [options](#options).
+  - The options for the converter. Check out the available [options](#options).
+
+Update the converter options.
+
+**Note:** This resets all settings. If one or more settings passed as parameter are missing, defaults will be used.
+
+### getLastInput()
+
+Get the latest latex input.
+
+### getLastResult()
+
+Get the latest conversion result.
 
 ## Build instructions
 
