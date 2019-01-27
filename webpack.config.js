@@ -11,7 +11,7 @@ ${pkg.name} v${pkg.version}       ${date}
 by ${pkg.author.name}    ${pkg.author.email}
 ${pkg.homepage}
 
-Copyright: 2018 NTNU
+Copyright: 2019 NTNU
 License: ${pkg.license}
 
 Build: [hash]
