@@ -12,10 +12,6 @@ import {getOptions} from "./options";
 import * as logger from './logger';
 import {isGreekLetter} from "./tokens/greek-letters";
 
-const BRACKET_CURLY_OPEN = '{';
-const BRACKET_NORMAL_OPEN = '(';
-const BRACKET_SQUARE_OPEN = '[';
-
 
 export function parseLatex(tokens) {
     const options = getOptions();
@@ -25,7 +21,16 @@ export function parseLatex(tokens) {
     let structure = [];
 
     function addNode(obj) {
-        structure.push(obj);
+        if (checkArray(obj)) {
+            structure.push(...obj);
+        } else {
+            structure.push(obj);
+
+        }
+    }
+
+    function checkArray(value) {
+        return value && typeof value === 'object' && value.constructor === Array;
     }
 
     function consume() {
@@ -44,6 +49,10 @@ export function parseLatex(tokens) {
 
     function getCurrentType() {
         return tokens[index].type.name;
+    }
+
+    function getCurrentTypeSymbol() {
+        return tokens[index].type.symbol;
     }
 
     function peek() {
@@ -220,21 +229,20 @@ export function parseLatex(tokens) {
         };
     }
 
+    function handleVerticalBar() {
+        let node = null;
+        node = {
+            type: 'vertical_bar',
+            value: consume()
+        };
+
+        return node;
+    }
+
     function parseGroup() {
-        let bracket = "";
-        switch (getCurrentChar()) {
-            case BRACKET_CURLY_OPEN:
-                bracket = 'curly';
-                break;
+        let groupName = getBracketName(getCurrentTypeSymbol());
 
-            case BRACKET_NORMAL_OPEN:
-                bracket = 'normal';
-                break;
-            case BRACKET_SQUARE_OPEN:
-                bracket = 'square'
-        }
-
-        const length = matchingBracketLength(tokens.slice(index), bracket);
+        let length = matchingBracketLength(tokens.slice(index), groupName);
 
         if (length instanceof Error) return length;
 
@@ -245,7 +253,7 @@ export function parseLatex(tokens) {
 
         return {
             type: 'group',
-            symbol: bracket,
+            symbol: groupName,
             value: parseLatex(newLatex, options)
         };
     }
@@ -289,7 +297,7 @@ export function parseLatex(tokens) {
     }
 
     function parseEnvironment(state) {
-        if (getCurrentChar() !== BRACKET_CURLY_OPEN) {
+        if (getCurrentChar() !== TOKEN_TYPES.OPENING_BRACKET.symbol) {
             throw new Error('No argument for environments are present.')
         }
         skipToken(); // Skip brace
@@ -415,6 +423,7 @@ export function parseLatex(tokens) {
         return node;
     }
 
+
     function parseOperator() {
         logger.debug("Found operator");
 
@@ -482,13 +491,15 @@ export function parseLatex(tokens) {
                 logger.debug('Found BRACKET \"' + getCurrentChar() + '\"');
                 parsedResult = parseGroup();
                 break;
-
+            case TOKEN_TYPES.VERTICAL_BAR:
+                logger.debug('Found VERTICAL_BAR \"' + getCurrentChar() + '\"');
+                parsedResult = handleVerticalBar();
+                break;
 
             default:
                 index++;
                 break;
         }
-
 
         return parsedResult;
     }
@@ -525,6 +536,49 @@ export function parseLatex(tokens) {
     return startParse();
 }
 
+
+function isBracket(char) {
+    let bracket = false;
+    switch (char) {
+        case TOKEN_TYPES.OPENING_BRACE.symbol:
+            bracket = true;
+            break;
+        case TOKEN_TYPES.OPENING_PARENTHESES.symbol:
+            bracket = true;
+            break;
+        case TOKEN_TYPES.OPENING_BRACKET.symbol:
+            bracket = true;
+            break;
+    }
+    return bracket;
+}
+
+
+function getBracketName(bracket) {
+    let name = "";
+
+    switch (bracket) {
+        case TOKEN_TYPES.OPENING_BRACE.symbol:
+            name = 'curly';
+            break;
+        case TOKEN_TYPES.CLOSING_BRACE.symbol:
+            name = 'curly';
+            break;
+        case TOKEN_TYPES.OPENING_PARENTHESES.symbol:
+            name = 'normal';
+            break;
+        case TOKEN_TYPES.CLOSING_PARENTHESES.symbol:
+            name = 'normal';
+            break;
+        case TOKEN_TYPES.OPENING_BRACKET.symbol:
+            name = 'square';
+            break;
+        case TOKEN_TYPES.CLOSING_BRACKET.symbol:
+            name = 'square';
+            break;
+    }
+    return name;
+}
 
 /**
  * Will find the length to the matching bracket, in provided tokens array

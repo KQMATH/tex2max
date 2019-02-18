@@ -17,6 +17,7 @@ export const FUNCTIONS = new Map([
     ['lim', null],
     ['int', 'integral'],
     ['binom', null],
+    ['abs', null],
 
     ['arccos', 'acos'],
     ['arccosh', 'acosh'],

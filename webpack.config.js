@@ -3,6 +3,7 @@ const createVariants = require('parallel-webpack').createVariants;
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const path = require("path");
 const pkg = require('./package.json');
+const mode = 'production';
 
 const timeStamp = new Date().toLocaleTimeString();
 const date = new Date();
@@ -18,7 +19,7 @@ Build: [hash]
 `;
 
 let umdConfig = {
-    mode: 'production',
+    mode: mode,
     entry: "./build/merge.js",
     output: {
         path: path.resolve(__dirname, "dist"),
@@ -64,7 +65,7 @@ function createConfig(options) {
     ];
     let fileExtention = getFileExtension(options.libraryTarget);
     return {
-        mode: 'production',
+        mode: mode,
         entry: './src/index.js',
         output: {
             path: path.resolve(__dirname, "dist"),
