@@ -3,12 +3,13 @@
  * @copyright  2019 NTNU
  */
 
-import {getFunctionName} from "./functions";
-import {getOptions} from "./options";
+import {getFunctionName} from './functions';
+import {getOptions} from './options';
 import * as logger from './logger';
+import {DELIMITERS} from './delimiters';
 
 export function postParse(parsedLatex) {
-    logger.debug("\n------------------ POST PARSING -> -------------------");
+    logger.debug('\n------------------ POST PARSING -> -------------------');
     const options = getOptions();
 
     let index = 0;
@@ -17,7 +18,7 @@ export function postParse(parsedLatex) {
     for (index; index < parsedLatex.length; index++) {
         const item = parsedLatex[index];
 
-        logger.debug("--------- Parsing next token' ---------");
+        logger.debug('--------- Parsing next token\' ---------');
 
         let node = parseExpression();
         if (node === null) {
@@ -32,19 +33,19 @@ export function postParse(parsedLatex) {
 
         addNode(node);
 
-        let types = "";
+        let types = '';
         if (checkArray(node)) {
             node.forEach(e => {
-                types += e.type + " + ";
+                types += e.type + ' + ';
             });
-            types = types.substr(0, types.length - 3)
-        } else {
+            types = types.substr(0, types.length - 3);
+        }
+        else {
             types = node.type;
         }
 
-        logger.debug('Parsed result type(s): ' + types + ".");
+        logger.debug('Parsed result type(s): ' + types + '.');
     }
-
 
     function parseExpression() {
         let node = null;
@@ -52,11 +53,11 @@ export function postParse(parsedLatex) {
         const value = getCurrentValue();
         const type = getCurrentType();
         switch (type) {
-            case 'vertical_bar':
-                logger.debug('Found vertical_bar \"' + value + '\"');
-                node = parseVerticalBar();
-                break;
 
+            case 'delimiter':
+                logger.debug('Found delimiter \"' + value + '\"');
+                node = parseDelimiter();
+                break;
             case 'group':
                 logger.debug('Found group \"' + value + '\"');
                 node = parseGroup();
@@ -70,18 +71,19 @@ export function postParse(parsedLatex) {
         return node;
     }
 
-
     function addNode(obj) {
         if (checkArray(obj)) {
             structure.push(...obj);
-        } else {
+        }
+        else {
             structure.push(obj);
 
         }
     }
 
     function checkArray(value) {
-        return value && typeof value === 'object' && value.constructor === Array;
+        return value && typeof value === 'object' && value.constructor ===
+            Array;
     }
 
     function getCurrentItem() {
@@ -97,11 +99,14 @@ export function postParse(parsedLatex) {
     }
 
     function peekType(position) {
-        return parsedLatex[index + position] ? parsedLatex[index + 1].type.name : null;
+        return parsedLatex[index + position]
+            ? parsedLatex[index + 1].type
+            : null;
     }
 
     function peekValue(position) {
-        return parsedLatex[index + position] ? parsedLatex[index + position].value : null;
+        return parsedLatex[index + position] ? parsedLatex[index +
+        position].value : null;
     }
 
     function lookBack(position) {
@@ -124,138 +129,113 @@ export function postParse(parsedLatex) {
         return node;
     }
 
-    function parseVerticalBar() {
+    function parseDelimiter() {
         let nodes = null;
-        let functionName = 'abs';
-        let func = getFunctionName(functionName);
-        let funcNode, groupNode;
+        let node, groupNode;
 
-        funcNode = {
-            type: 'function',
-            value: func
-        };
+        const item = getCurrentItem();
+        const value = getCurrentValue();
+
+        const type = peekType(1);
+        switch (type) {
+            case 'vertical_bar':
+                logger.debug('Found vertical_bar \"' + value + '\"');
+                node = parseVerticalBar();
+                break;
+            default:
+                break;
+        }
 
         groupNode = createGroup();
 
-        nodes = [funcNode, groupNode];
+        nodes = [node, groupNode];
+        nodes = nodes.filter(function(el) {
+            return el != null;
+        });
         return nodes;
     }
 
+    function parseVerticalBar() {
+        let node = null;
+        let functionName = 'abs';
+        let func = getFunctionName(functionName);
+
+        node = {
+            type: 'function',
+            value: func,
+        };
+
+        return node;
+    }
+
     function createGroup() {
-        const value = getCurrentValue();
-        const type = getCurrentType();
+        const delimiter = getCurrentValue();
+        const type = peekType(1);
+        const value = peekValue(1);
+        let length = findGroupLength(parsedLatex.slice(index), delimiter,
+            value);
 
-        let length = matchingSymbolLength(parsedLatex.slice(index), value);
+        if (length instanceof Error) {
+            return length;
+        }
 
-        if (length instanceof Error) return length;
-
-        const newItems = parsedLatex.slice(index + 1, index + (length));
+        const newItems = parsedLatex.slice(index + 2, index + (length));
         logger.debug('New group created');
 
         index += length;
 
-
         return {
             type: 'group',
             symbol: type,
-            value: postParse(newItems)
+            value: postParse(newItems),
         };
     }
 
-
     /**
-     * Will find the length to the matching symbol in provided items array
-     * @param  {Token} tokens       An array of tokens, starting from where the search should begin
-     * @param  {string} symbol      The symbol to search for.
-     * @return {number}             The length from start of provided tokens array,
-     *                              to the location of the matching bracket
+     * Will find the length to the matching delimeter and symbol in provided
+     * items array
+     * @param  {Object} items An array of parsed latex, starting
+     *     from where the search should begin
+     * @param  {string} symbol The symbol to search for.
+     * @return {number} The length from start of provided items
+     *     array, to the location of the matched symbol bracket
      */
-    function matchingSymbolLength(items, symbol) {
+    function findGroupLength(items, delimiter, symbol) {
         logger.debug('Finding matching symbols');
 
-        let symbolCount = 0;
         let depth = 0;
-        let prevItemType = lookBackType(1);
+        const startDelimiter = delimiter;
+        const endDelimiter = DELIMITERS.get(delimiter);
         let nextItemType = peekType(1);
         let nextItemValue = peekValue(1);
 
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            logger.debug('-- Item:' + item.value);
-
-            let numVBarsBefore = numVerticalBars(items.slice(0, i + 1));
-            let numVBarsAfter = numVerticalBars(items.slice(i + 1, items.length));
-
-            prevItemType = items[i - 1] ? items[i - 1].type : '';
             nextItemType = items[i + 1] ? items[i + 1].type : '';
             nextItemValue = items[i + 1] ? items[i + 1].value : '';
 
+            logger.debug('-- Delimiter: ' + delimiter + ', Item:' + item.value);
 
-            // TODO |2|+||1|| results in a error.
-            // TODO |||1||| results in a error.
-            if (item.value === symbol) {
-                symbolCount++;
-
-                if (i === 0) {
-                    depth++;
-
-                } else if (prevItemType === 'operator') {
-                    depth++;
-
-                } else if (prevItemType === 'vertical_bar') {
-                    if (numVBarsAfter < numVBarsBefore) {
-                        depth--;
-                    } else {
-                        depth++;
-                    }
-
-                } else {
-                    if (numDoubbleVerticalBars(items.slice(i+1,items.length)) > 0) {
-                        depth++;
-
-                    } else {
-                        depth--;
-                    }
+            if (item.type === 'delimiter' && item.value === startDelimiter &&
+                nextItemValue === symbol) {
+                depth++;
+                logger.debug('-- Found starting point, depth ' + depth);
+            }
+            else if (item.type === 'delimiter' && item.value === endDelimiter &&
+                nextItemValue === symbol) {
+                if (depth === 1) {
+                    logger.debug(
+                        '-- Found end of symbol group at position ' + i);
+                    return i;
                 }
-                logger.debug('-- Found "' + symbol + '" symbol. Depth: ' + depth);
-
+                depth--;
+                logger.debug('-- Found closing point, depth ' + depth);
             }
 
-            if (depth === 0 && symbolCount % 2 === 0) {
-                logger.debug('-- Found end of symbol group at position ' + i);
-                return i;
-            }
-
-            logger.debug('Depth: ' + depth);
         }
-        throw new Error('"' + symbol + '"' + ' symbols does not match up');
+        throw new Error(
+            '"' + delimiter + symbol + '"' + ' symbols does not match up');
     }
-
-
-    function numVerticalBars(items) {
-        let count = 0;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type === 'vertical_bar') count++;
-        }
-        return count;
-    }
-
-
-    function numDoubbleVerticalBars(items) {
-        let count = 0;
-        for (let i = 0; i < items.length -1; i++) {
-            if (items[i].type === 'vertical_bar' && items[i + 1].type === 'vertical_bar') {
-                count++;
-            }
-        }
-        return count;
-    }
-
-
-    function isEven(number) {
-        return number % 2 === 0;
-    }
-
 
     return structure;
 }

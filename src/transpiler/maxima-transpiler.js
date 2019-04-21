@@ -357,7 +357,6 @@ export function transpiler(parsedLatex) {
             function handleAbs() {
                 let expression = "";
                 let func = item.value;
-
                 expression += func;
                 expression += transpiler(wrapForTranspilation(parsedLatex[index + 1]));
 

@@ -11,6 +11,7 @@ import {RESERVED_WORDS} from "./reservedWords";
 import {getOptions} from "./options";
 import * as logger from './logger';
 import {isGreekLetter} from "./tokens/greek-letters";
+import {isDelimiter} from './delimiters';
 
 
 export function parseLatex(tokens) {
@@ -229,7 +230,7 @@ export function parseLatex(tokens) {
         };
     }
 
-    function handleVerticalBar() {
+    function parseVerticalBar() {
         let node = null;
         node = {
             type: 'vertical_bar',
@@ -239,10 +240,25 @@ export function parseLatex(tokens) {
         return node;
     }
 
-    function parseGroup() {
-        let groupName = getBracketName(getCurrentTypeSymbol());
+    function parseDelimiter(delimiter) {
+        let node = null;
+        node = {
+            type: 'delimiter',
+            value: delimiter
+        };
 
-        let length = matchingBracketLength(tokens.slice(index), groupName);
+        return node;
+    }
+
+    function parseGroup(delimiter = null) {
+        let groupName = getBracketName(getCurrentTypeSymbol());
+        let length = 0;
+
+        if (delimiter) {
+            length = matchingGroupLength(tokens.slice(index), delimiter, groupName);
+        } else {
+            length = matchingBracketLength(tokens.slice(index), groupName);
+        }
 
         if (length instanceof Error) return length;
 
@@ -404,6 +420,8 @@ export function parseLatex(tokens) {
             node = parseOperatorname()
         } else if (isFunction(functionalWord)) {
             node = parseFunction(functionalWord);
+        } else if (isDelimiter(functionalWord)) {
+            node = parseDelimiter(functionalWord);
         } else {
             node = parseMacro(functionalWord);
         }
@@ -493,7 +511,7 @@ export function parseLatex(tokens) {
                 break;
             case TOKEN_TYPES.VERTICAL_BAR:
                 logger.debug('Found VERTICAL_BAR \"' + getCurrentChar() + '\"');
-                parsedResult = handleVerticalBar();
+                parsedResult = parseVerticalBar();
                 break;
 
             default:
