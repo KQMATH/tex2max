@@ -11,6 +11,7 @@ import {lex} from "./lexer";
 import {parseLatex} from "./parser";
 import {transpiler} from "./transpiler/maxima-transpiler";
 import {isEquation, stripParenthesis} from "./helpers/helpers";
+import {postParse} from "./post-parser";
 
 
 /********************************************************
@@ -76,7 +77,10 @@ import {isEquation, stripParenthesis} from "./helpers/helpers";
         let lexerResult = lex(scannerResult);
         logger.debug(lexerResult);
 
-        this.structure = parseLatex(lexerResult);
+        let parsedLatex = parseLatex(lexerResult);
+        logger.debug(parsedLatex);
+
+        this.structure = postParse(parsedLatex);
         logger.debug(this.structure);
 
         let transpiledExpression = transpiler(this.structure);

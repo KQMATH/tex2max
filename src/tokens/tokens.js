@@ -21,33 +21,38 @@ export const TOKEN_TYPES = {
     },
     OPENING_BRACE: {
         name: "OPENING_BRACE",
-        symbol: null,
+        symbol: "{",
         regex: /^[\{]$/
     },
     CLOSING_BRACE: {
         name: "CLOSING_BRACE",
-        symbol: null,
+        symbol: "}",
         regex: /^[\}]$/
     },
     OPENING_PARENTHESES: {
         name: "OPENING_PARENTHESES",
-        symbol: null,
+        symbol: "(",
         regex: /^[\(]$/
     },
     CLOSING_PARENTHESES: {
         name: "CLOSING_PARENTHESES",
-        symbol: null,
+        symbol: ")",
         regex: /^[\)]$/
     },
     OPENING_BRACKET: {
         name: "BRACKET",
-        symbol: null,
+        symbol: "[",
         regex: /^[\[]$/
     },
     CLOSING_BRACKET: {
         name: "BRACKET",
-        symbol: null,
+        symbol: "]",
         regex: /^[\]]$/
+    },
+    VERTICAL_BAR: {
+        name: "VERTICAL_BAR",
+        symbol: "|",
+        regex: /^[|]$/
     },
     NUMBER_LITERAL: {
         name: "NUMBER_LITERAL",
