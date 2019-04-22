@@ -30,9 +30,7 @@
     "url": "https://github.com/KQMATH/tex2max/issues"
   },
   "files": [
-    "/lib",
-    "/src",
-    "LICENSE"
+    "/lib"
   ],
   "homepage": "https://github.com/KQMATH/tex2max",
   "devDependencies": {
@@ -40,12 +38,11 @@
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
+    "@babel/register": "^7.4.0",
+    "babel-loader": "^8.0.5",
     "parallel-webpack": "^2.3.0",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.1"
   },
-  "dependencies": {
-    "@babel/register": "^7.4.0",
-    "babel-loader": "^8.0.5"
-  }
+  "dependencies": {}
 }
