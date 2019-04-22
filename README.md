@@ -9,7 +9,7 @@ TeX2Max supports Node and AMD, in addition to normal browser support.
 
 ## Main
 ```text
-dist/
+lib/
 ├── tex2max.amd.js        (AMD)
 ├── tex2max.js            (UMD)
 └── tex2max.common.js     (CommonJS, default)
