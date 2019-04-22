@@ -1,5 +1,6 @@
 # TeX2Max
 [![npm version](http://img.shields.io/npm/v/tex2max.svg?style=flat)](https://npmjs.org/package/tex2max "View this project on npm")
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/KQMATH/tex2max.svg?)](https://lgtm.com/projects/g/KQMATH/tex2max/context:javascript)
 
 TeX2Max is a JavaScript library for converting LaTeX math to Maxima code.
 
@@ -8,7 +9,7 @@ TeX2Max supports Node and AMD, in addition to normal browser support.
 
 ## Main
 ```text
-dist/
+lib/
 ├── tex2max.amd.js        (AMD)
 ├── tex2max.js            (UMD)
 └── tex2max.common.js     (CommonJS, default)

@@ -4,22 +4,21 @@
  */
 
 import {environmentLength} from "./handlers/environment";
-import {getLimitLength} from "./handlers/common";
-import {assertNotUndefined, getExpressionLength} from "./handlers/common";
+import {assertNotUndefined, getExpressionLength, getLimitLength} from "./handlers/common";
 import {isMacro, MACROS} from '../macros';
 import {handleMatrix} from "./handlers/matrix";
 import {
     buildMaximaFunctionString,
-    wrapForTranspilation,
+    stripAllParenthesis,
     stripParenthesis,
-    stripAllParenthesis
+    wrapForTranspilation
 } from "../helpers/helpers";
 import {findIntegralEnd, handleUpperAndLowerArgs} from "./handlers/integration";
 import {handleLowerSumArguments, handleUpperAndLowerArgsSum} from "./handlers/sum";
 import {handleLimitArguments} from "./handlers/limit";
 import {getOptions} from "../options";
 import * as logger from "../logger";
-import {convertSymbols, getName, getSymbol, isGreekLetter} from "../tokens/greek-letters";
+import {getName, getSymbol, isGreekLetter} from "../tokens/greek-letters";
 import {getInverseTrigonometricFunction, isTrigonometricFunction} from "../functions";
 
 
@@ -73,7 +72,12 @@ export function transpiler(parsedLatex) {
             return transpiledString.substring(1);
         }
 
-
+        /**
+         * Add times ("*") sign to transpiledString. If supplied with obj parameters with
+         * types ex {type: 'function'}, {type: 'operator'}, times sign will not be added.
+         * @param index
+         * @param obj
+         */
         function addTimesSign(index, ...obj) {
             let previousToken = parsedLatex[index - 1];
             let isPass = true;
@@ -100,6 +104,7 @@ export function transpiler(parsedLatex) {
         }
 
 
+        // TODO possible move operator checking to post-parser, since this is a parser job.
         function doOperator() {
             const previousToken = parsedLatex[index - 1];
 
@@ -164,10 +169,18 @@ export function transpiler(parsedLatex) {
         }
 
         function doGroup() {
+            let groupString = "";
 
             addTimesSign(index, {type: 'function'}, {type: 'operator'});
 
-            transpiledString += transpiler(item.value);
+            groupString += transpiler(item.value);
+
+            if (item.symbol === 'vertical_bar') {
+                groupString = stripParenthesis(groupString);
+            }
+
+            transpiledString += groupString;
+
         }
 
         function doToken() {
@@ -211,8 +224,6 @@ export function transpiler(parsedLatex) {
 
             // Handle fraction
             if (item.value === 'frac') {
-                // TODO 1+\frac{1}{2} causes a problem, results in 1+*(1)/(2)
-
                 if (parsedLatex[index + 1].type === 'group' && parsedLatex[index + 2].type === 'group') {
                     logger.debug('Found fraction');
                     tokenString += transpiler(parsedLatex[index + 1].value) + '/' + transpiler(parsedLatex[index + 2].value);
@@ -235,11 +246,9 @@ export function transpiler(parsedLatex) {
 
             addTimesSign(index, {type: 'operator'});
 
-
             const nextItem = parsedLatex[index + 1];
 
             if (item.value === 'sqrt') {
-                // TODO review nthroot -> \sqrt[3]{2x+3} = (2x+3)^(1/3)
                 if (parsedLatex[index + 1].type === 'group') {
                     let sqrtString = "";
                     if (parsedLatex[index + 1].symbol === 'square' && parsedLatex[index + 2].type === 'group') {
@@ -277,6 +286,10 @@ export function transpiler(parsedLatex) {
             } else if (item.value === 'integral') {
                 logger.debug('Found function "integral"');
                 handleIntegral();
+
+            } else if (item.value === 'abs') {
+                logger.debug('Found function "abs"');
+                handleAbs();
 
             } else {
                 logger.debug('Found normal "function"');
@@ -339,6 +352,18 @@ export function transpiler(parsedLatex) {
                 index++;
 
                 transpiledString += expression;
+            }
+
+            function handleAbs() {
+                let expression = "";
+                let func = item.value;
+                expression += func;
+                expression += transpiler(wrapForTranspilation(parsedLatex[index + 1]));
+
+                index++;
+
+                transpiledString += expression;
+
             }
 
             function handleBinomial() {
@@ -471,7 +496,6 @@ export function transpiler(parsedLatex) {
 
                 integrationVariable += integralEnd.variable;
                 integralLength = integralEnd.length;
-
 
                 let unTranspiledIntegralLatex = parsedLatex.slice((index), ((index) + integralLength));
                 assertNotUndefined(unTranspiledIntegralLatex[unTranspiledIntegralLatex.length - 1], 'Missing argument in integral');

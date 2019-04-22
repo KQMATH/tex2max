@@ -1,8 +1,8 @@
 const webpack = require("webpack");
 const createVariants = require('parallel-webpack').createVariants;
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const path = require("path");
 const pkg = require('./package.json');
+const mode = 'production';
 
 const timeStamp = new Date().toLocaleTimeString();
 const date = new Date();
@@ -18,10 +18,10 @@ Build: [hash]
 `;
 
 let umdConfig = {
-    mode: 'production',
+    mode: mode,
     entry: "./build/merge.js",
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: path.resolve(__dirname, "lib"),
         filename: "tex2max.js",
         library: "tex2max",
         libraryTarget: 'umd',
@@ -32,10 +32,7 @@ let umdConfig = {
                 test: /\.js$/,
                 exclude: /(node_modules)/,
                 use: {
-                    loader: "babel-loader",
-                    options: {
-                        presets: ["babel-preset-env"]
-                    }
+                    loader: "babel-loader"
                 }
             }
         ]
@@ -64,10 +61,10 @@ function createConfig(options) {
     ];
     let fileExtention = getFileExtension(options.libraryTarget);
     return {
-        mode: 'production',
+        mode: mode,
         entry: './src/index.js',
         output: {
-            path: path.resolve(__dirname, "dist"),
+            path: path.resolve(__dirname, "lib"),
             filename: 'tex2max.' +
             fileExtention
             + '.js',
@@ -82,10 +79,7 @@ function createConfig(options) {
                     test: /\.js$/,
                     exclude: /(node_modules)/,
                     use: {
-                        loader: "babel-loader",
-                        options: {
-                            presets: ["babel-preset-env"]
-                        }
+                        loader: "babel-loader"
                     }
                 }
             ]
@@ -95,7 +89,6 @@ function createConfig(options) {
 }
 
 let variants = {
-    minified: [true, false],
     libraryTarget: ['commonjs2', 'amd']
 };
 

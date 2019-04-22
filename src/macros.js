@@ -22,9 +22,7 @@ export const MACROS = new Map([
 ]);
 
 
-export const IGNORED_MACROS = [
-    'left', 'right'
-];
+export const IGNORED_MACROS = [];
 
 
 // Override macro nodes
