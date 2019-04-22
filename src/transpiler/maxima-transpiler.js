@@ -497,7 +497,6 @@ export function transpiler(parsedLatex) {
                 integrationVariable += integralEnd.variable;
                 integralLength = integralEnd.length;
 
-
                 let unTranspiledIntegralLatex = parsedLatex.slice((index), ((index) + integralLength));
                 assertNotUndefined(unTranspiledIntegralLatex[unTranspiledIntegralLatex.length - 1], 'Missing argument in integral');
 

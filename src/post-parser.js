@@ -52,14 +52,15 @@ export function postParse(parsedLatex) {
         const item = getCurrentItem();
         const value = getCurrentValue();
         const type = getCurrentType();
+
         switch (type) {
 
             case 'delimiter':
                 logger.debug('Found delimiter \"' + value + '\"');
                 node = parseDelimiter();
                 break;
-            case 'group':
-                logger.debug('Found group \"' + value + '\"');
+            case 'opening_bracket':
+                logger.debug('Found bracket \"' + value + '\"');
                 node = parseGroup();
                 break;
 
@@ -98,6 +99,12 @@ export function postParse(parsedLatex) {
         return parsedLatex[index].type;
     }
 
+    function peekItem(position) {
+        return parsedLatex[index + position]
+            ? parsedLatex[index + 1]
+            : null;
+    }
+
     function peekType(position) {
         return parsedLatex[index + position]
             ? parsedLatex[index + 1].type
@@ -124,9 +131,22 @@ export function postParse(parsedLatex) {
     }
 
     function parseGroup() {
-        let node = getCurrentItem();
-        node.value = postParse(getCurrentValue());
-        return node;
+        let node = null;
+        let groupName = getCurrentItem().symbol;
+        let length = matchingBracketLength(parsedLatex.slice(index), null, groupName);
+
+        if (length instanceof Error) return length;
+
+        const newItems = parsedLatex.slice(index + 1, index + (length));
+        logger.debug('New group created2');
+
+        index += length;
+
+        return {
+            type: 'group',
+            symbol: groupName,
+            value: postParse(newItems),
+        };
     }
 
     function parseDelimiter() {
@@ -152,6 +172,7 @@ export function postParse(parsedLatex) {
         nodes = nodes.filter(function(el) {
             return el != null;
         });
+
         return nodes;
     }
 
@@ -208,13 +229,19 @@ export function postParse(parsedLatex) {
         const endDelimiter = DELIMITERS.get(delimiter);
         let nextItemType = peekType(1);
         let nextItemValue = peekValue(1);
+        let nextItem = peekItem(1);
+
+        if (nextItemType === 'opening_bracket') {
+            return matchingBracketLength(items,
+                delimiter, nextItem.symbol);
+        }
 
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
             nextItemType = items[i + 1] ? items[i + 1].type : '';
             nextItemValue = items[i + 1] ? items[i + 1].value : '';
 
-            logger.debug('-- Delimiter: ' + delimiter + ', Item:' + item.value);
+            logger.debug('-- Item:' + item.value);
 
             if (item.type === 'delimiter' && item.value === startDelimiter &&
                 nextItemValue === symbol) {
@@ -235,6 +262,102 @@ export function postParse(parsedLatex) {
         }
         throw new Error(
             '"' + delimiter + symbol + '"' + ' symbols does not match up');
+    }
+
+    /**
+     * Will find the length to the matching bracket, in provided tokens array
+     * @param  {Object} items       An array of tokens, starting from where
+     *     the search should begin
+     * @param  {string} bracketType The type of bracket to search for.
+     *                                  Can be one of the following ['normal',
+     *     'curly', 'square']
+     * @return {number}             The length from start of provided tokens
+     *     array, to the location of the matching bracket
+     */
+    function matchingBracketLength(items, delimiter, bracketType) {
+        logger.debug('Finding matching bracket');
+
+        let startBracket = '';
+        let endBracket = '';
+        const startDelimiter = delimiter;
+        const endDelimiter = DELIMITERS.get(delimiter);
+        let nextItemType = peekType(1);
+        let nextItemValue = peekValue(1);
+
+        switch (bracketType) {
+            case 'normal':
+                startBracket = '(';
+                endBracket = ')';
+                break;
+            case 'curly':
+                startBracket = '{';
+                endBracket = '}';
+                break;
+            case 'square':
+                startBracket = '[';
+                endBracket = ']';
+                break;
+        }
+
+        let bracketDepth = 0;
+
+        if (delimiter) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                nextItemType = items[i + 1] ? items[i + 1].type : '';
+                nextItemValue = items[i + 1] ? items[i + 1].value : '';
+
+                logger.debug('-- Char:' + item.value);
+
+                if (item.type === 'delimiter' && item.value ===
+                    startDelimiter &&
+                    nextItemValue === startBracket) {
+                    bracketDepth++;
+                    logger.debug(
+                        '-- Found starting bracket, depth ' + bracketDepth);
+                }
+                else if (item.type === 'delimiter' && item.value ===
+                    endDelimiter &&
+                    nextItemValue === endBracket) {
+                    if (bracketDepth === 1) {
+                        logger.debug(
+                            '-- Found original closing bracket at position ' +
+                            i);
+                        return i;
+                    }
+
+                    bracketDepth--;
+                    logger.debug(
+                        '-- Found closing bracket, depth ' + bracketDepth);
+                }
+            }
+        }
+        else {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                logger.debug('-- Char:' + item.value);
+
+                if (item.value === startBracket) {
+                    bracketDepth++;
+                    logger.debug(
+                        '-- Found starting bracket, depth ' + bracketDepth);
+                }
+                else if (item.value === endBracket) {
+                    if (bracketDepth === 1) {
+                        logger.debug(
+                            '-- Found original closing bracket at position ' +
+                            i);
+                        return i;
+                    }
+
+                    bracketDepth--;
+                    logger.debug(
+                        '-- Found closing bracket, depth ' + bracketDepth);
+                }
+            }
+        }
+
+        throw new Error('Brackets do not match up');
     }
 
     return structure;

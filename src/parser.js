@@ -232,6 +232,11 @@ export function parseLatex(tokens) {
 
     function parseVerticalBar() {
         let node = null;
+        let previousStructureType = lookBack(1);
+        if (previousStructureType !== 'delimiter') {
+            throw new Error('Pipe symbols may only be used with "left" / "right" delimiters.');
+        }
+
         node = {
             type: 'vertical_bar',
             value: consume()
@@ -250,7 +255,20 @@ export function parseLatex(tokens) {
         return node;
     }
 
-    function parseGroup(delimiter = null) {
+    function parseBracket() {
+        let node = null;
+        let bracketName = getBracketName(getCurrentTypeSymbol());
+        let bracketType = getBracketType(getCurrentTypeSymbol());
+        node = {
+            type: bracketType,
+            symbol: bracketName,
+            value: consume()
+        };
+
+        return node;
+    }
+
+    /*function parseGroup(delimiter = null) {
         let groupName = getBracketName(getCurrentTypeSymbol());
         let length = 0;
 
@@ -272,7 +290,7 @@ export function parseLatex(tokens) {
             symbol: groupName,
             value: parseLatex(newLatex, options)
         };
-    }
+    }*/
 
     function parseMacro(macroName) {
         let macro = null;
@@ -360,11 +378,11 @@ export function parseLatex(tokens) {
                 break;
 
             case '{':
-                result = parseGroup();
+                result = parseBracket();
                 break;
 
             case '}':
-                result = null;
+                result = parseBracket();
                 break;
 
             case '\\':
@@ -498,16 +516,19 @@ export function parseLatex(tokens) {
                 parsedResult = parseVariable();
                 break;
             case TOKEN_TYPES.OPENING_BRACE:
+            case TOKEN_TYPES.CLOSING_BRACE:
                 logger.debug('Found BRACKET \"' + getCurrentChar() + '\"');
-                parsedResult = parseGroup();
+                parsedResult = parseBracket();
                 break;
             case TOKEN_TYPES.OPENING_PARENTHESES:
+            case TOKEN_TYPES.CLOSING_PARENTHESES:
                 logger.debug('Found BRACKET \"' + getCurrentChar() + '\"');
-                parsedResult = parseGroup();
+                parsedResult = parseBracket();
                 break;
             case TOKEN_TYPES.OPENING_BRACKET:
+            case TOKEN_TYPES.CLOSING_BRACKET:
                 logger.debug('Found BRACKET \"' + getCurrentChar() + '\"');
-                parsedResult = parseGroup();
+                parsedResult = parseBracket();
                 break;
             case TOKEN_TYPES.VERTICAL_BAR:
                 logger.debug('Found VERTICAL_BAR \"' + getCurrentChar() + '\"');
@@ -596,6 +617,24 @@ function getBracketName(bracket) {
             break;
     }
     return name;
+}
+
+function getBracketType(bracket) {
+    let type = "";
+
+    switch (bracket) {
+        case TOKEN_TYPES.OPENING_BRACE.symbol:
+        case TOKEN_TYPES.OPENING_PARENTHESES.symbol:
+        case TOKEN_TYPES.OPENING_BRACKET.symbol:
+            type = 'opening_bracket';
+            break;
+        case TOKEN_TYPES.CLOSING_BRACE.symbol:
+        case TOKEN_TYPES.CLOSING_PARENTHESES.symbol:
+        case TOKEN_TYPES.CLOSING_BRACKET.symbol:
+            type = 'closing_bracket';
+            break;
+    }
+    return type;
 }
 
 /**
