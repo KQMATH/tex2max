@@ -1,0 +1,6 @@
+path_classifiers:
+  test:
+    - "**/test/**/*.js"
+    - "**/*test.js"
+queries:
+  - exclude: js/unused-local-variable

@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## [1.2.0] - 2019-06-25
+### Changed
+- Functions following trigonometric functions are not included as arguments to trigonometric function.
+
+### Fixed
+- Fractions are wrapped with brackets to ensure the correctness of subsequent expressions.
+
 ## [1.1.0] - 2019-04-22
 ### Added
 - Piped expressions are now supported.
@@ -21,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## 1.0.2 - 2019-01-22
 
-[Unreleased]: https://github.com/KQMATH/tex2max/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/KQMATH/tex2max/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/KQMATH/tex2max/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/KQMATH/tex2max/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/KQMATH/tex2max/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/KQMATH/tex2max/compare/v1.0.2...v1.0.3
