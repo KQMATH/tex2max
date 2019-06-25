@@ -9,8 +9,8 @@ export function assertNotUndefined(item, message) {
     }
 }
 
-export function getExpressionLength(parsedLatex) {
-    // Locate the next operator + or -.
+export function getExpressionLength(parsedLatex, types = [], values = []) {
+    // Locate the next operator + or -, function etc...
 
     let expressionLength = 0;
 
@@ -20,11 +20,26 @@ export function getExpressionLength(parsedLatex) {
         let i = 0;
         let foundExpressionLength = false;
         while (i < parsedLatex.length && !foundExpressionLength) {
+            let pl = parsedLatex[i];
 
-            if (parsedLatex[i].value === '+' || parsedLatex[i].value === '-' || parsedLatex[i].value === '+-') {
-                expressionLength = (i);
-                foundExpressionLength = true;
+            if (types != null) {
+                types.forEach(type => {
+                    if (parsedLatex[i].type === type) {
+                        expressionLength = (i);
+                        foundExpressionLength = true;
+                    }
+                });
             }
+
+            if (values != null && !foundExpressionLength) {
+                values.forEach(value => {
+                    if (parsedLatex[i].value === value) {
+                        expressionLength = (i);
+                        foundExpressionLength = true;
+                    }
+                });
+            }
+
             i++;
         }
 
@@ -35,4 +50,3 @@ export function getExpressionLength(parsedLatex) {
 
     return expressionLength;
 }
-
