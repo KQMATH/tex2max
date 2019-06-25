@@ -13,6 +13,8 @@ export function getExpressionLength(parsedLatex, types = [], values = []) {
     // Locate the next operator + or -, function etc...
 
     let expressionLength = 0;
+    let condition = null;
+    let conditionValue = null;
 
     if (parsedLatex[0].type === 'group' && parsedLatex.length === 1) {
         expressionLength = 1;
@@ -27,6 +29,9 @@ export function getExpressionLength(parsedLatex, types = [], values = []) {
                     if (parsedLatex[i].type === type) {
                         expressionLength = (i);
                         foundExpressionLength = true;
+                        condition = 'type';
+                        conditionValue = type;
+
                     }
                 });
             }
@@ -36,6 +41,8 @@ export function getExpressionLength(parsedLatex, types = [], values = []) {
                     if (parsedLatex[i].value === value) {
                         expressionLength = (i);
                         foundExpressionLength = true;
+                        condition = 'value';
+                        conditionValue = value;
                     }
                 });
             }
@@ -48,5 +55,5 @@ export function getExpressionLength(parsedLatex, types = [], values = []) {
         }
     }
 
-    return expressionLength;
+    return {expressionLength: expressionLength, condition: condition, conditionValue: conditionValue};
 }

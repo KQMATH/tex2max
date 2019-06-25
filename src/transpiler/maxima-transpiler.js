@@ -343,7 +343,12 @@ export function transpiler(parsedLatex) {
                 }
 
                 // Find length of expression....
-                let functionLength = getExpressionLength(parsedLatex.slice((index + 1)), ['function'], ['+', '-', '+-']);
+                let {expressionLength: functionLength, condition, conditionValue} = getExpressionLength(parsedLatex.slice((index + 1)), ['function'], ['+', '-', '+-']);
+
+                if (functionLength === 0 && condition === 'type' && conditionValue === 'function') {
+                    functionLength = 2;
+                }
+
                 expression += transpiler(wrapForTranspilation(parsedLatex.slice((index + 1), ((index + 1) + functionLength))));
                 index += functionLength - 1;
 
@@ -404,7 +409,7 @@ export function transpiler(parsedLatex) {
                     limitArgs = handleLimitArguments(limitArgs);
 
                     if (typeof parsedLatex[index + 3] !== 'undefined') {
-                        let limitLength = getExpressionLength(parsedLatex.slice((index + 3)), [], ['+', '-', '+-']);
+                        let {expressionLength: limitLength} = getExpressionLength(parsedLatex.slice((index + 3)), [], ['+', '-', '+-']);
 
                         expression += transpiler(parsedLatex.slice((index + 3), ((index + 3) + limitLength)));
                         index += (limitLength - 1);
@@ -448,7 +453,7 @@ export function transpiler(parsedLatex) {
                 }
 
                 if (typeof parsedLatex[index + 1] !== 'undefined') {
-                    let sumLength = getExpressionLength(parsedLatex.slice((index + 1)), [], ['+', '-', '+-']);
+                    let {expressionLength: sumLength} = getExpressionLength(parsedLatex.slice((index + 1)), [], ['+', '-', '+-']);
 
                     expression += transpiler(parsedLatex.slice((index + 1), ((index + 1) + sumLength)));
                     index += (sumLength);
