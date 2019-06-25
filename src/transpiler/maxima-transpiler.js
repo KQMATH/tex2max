@@ -226,7 +226,9 @@ export function transpiler(parsedLatex) {
             if (item.value === 'frac') {
                 if (parsedLatex[index + 1].type === 'group' && parsedLatex[index + 2].type === 'group') {
                     logger.debug('Found fraction');
+                    tokenString += '(';
                     tokenString += transpiler(parsedLatex[index + 1].value) + '/' + transpiler(parsedLatex[index + 2].value);
+                    tokenString += ')';
                     index += 2;
                 } else {
                     throw new Error('Fraction must have 2 following parameters');
