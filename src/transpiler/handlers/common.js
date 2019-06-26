@@ -1,3 +1,5 @@
+import {wrapForTranspilation} from '../../helpers/helpers';
+
 /**
  * @author     André Storhaug <andr3.storhaug@gmail.com>
  * @copyright  2018 NTNU
@@ -22,7 +24,6 @@ export function getExpressionLength(parsedLatex, types = [], values = []) {
         let i = 0;
         let foundExpressionLength = false;
         while (i < parsedLatex.length && !foundExpressionLength) {
-            let pl = parsedLatex[i];
 
             if (types != null) {
                 types.forEach(type => {

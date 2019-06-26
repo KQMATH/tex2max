@@ -3,24 +3,18 @@
  * @copyright  2018 NTNU
  */
 
-import {environmentLength} from "./handlers/environment";
-import {assertNotUndefined, getExpressionLength, getLimitLength} from "./handlers/common";
+import {environmentLength} from './handlers/environment';
+import {assertNotUndefined, getExpressionLength} from './handlers/common';
 import {isMacro, MACROS} from '../macros';
-import {handleMatrix} from "./handlers/matrix";
-import {
-    buildMaximaFunctionString,
-    stripAllParenthesis,
-    stripParenthesis,
-    wrapForTranspilation
-} from "../helpers/helpers";
-import {findIntegralEnd, handleUpperAndLowerArgs} from "./handlers/integration";
-import {handleLowerSumArguments, handleUpperAndLowerArgsSum} from "./handlers/sum";
-import {handleLimitArguments} from "./handlers/limit";
-import {getOptions} from "../options";
-import * as logger from "../logger";
-import {getName, getSymbol, isGreekLetter} from "../tokens/greek-letters";
-import {getInverseTrigonometricFunction, isTrigonometricFunction} from "../functions";
-
+import {handleMatrix} from './handlers/matrix';
+import {buildMaximaFunctionString, stripAllParenthesis, stripParenthesis, wrapForTranspilation} from '../helpers/helpers';
+import {findIntegralEnd, handleUpperAndLowerArgs} from './handlers/integration';
+import {handleLowerSumArguments, handleUpperAndLowerArgsSum} from './handlers/sum';
+import {handleLimitArguments} from './handlers/limit';
+import {getOptions} from '../options';
+import * as logger from '../logger';
+import {getName, getSymbol, isGreekLetter} from '../tokens/greek-letters';
+import {getInverseTrigonometricFunction, isTrigonometricFunction} from '../functions';
 
 /**
  * Will transpile a mathematical expression representation, derived from LaTeX,
@@ -31,9 +25,8 @@ import {getInverseTrigonometricFunction, isTrigonometricFunction} from "../funct
  * @return string The string representation of a mathematical expression in Maxima format, derived from LaTeX
  */
 export function transpiler(parsedLatex) {
-    logger.debug("\n------------------ TRANSPILING -> -------------------");
+    logger.debug('\n------------------ TRANSPILING -> -------------------');
     const options = getOptions();
-
 
     let transpiledString = '';
     let index = 0;
@@ -93,21 +86,22 @@ export function transpiler(parsedLatex) {
                         }
                     }
 
-                    if (allKeysMatch === true) isPass = false;
+                    if (allKeysMatch === true) {
+                        isPass = false;
+                    }
                 });
 
                 if (options.addTimesSign && isPass) {
-                    logger.debug('Adding * before ' + item.type + ': ' + item.value + ', previous item: ' + parsedLatex[index - 1].type);
+                    logger.debug(
+                        'Adding * before ' + item.type + ': ' + item.value + ', previous item: ' + parsedLatex[index - 1].type);
                     transpiledString += '*';
                 }
             }
         }
 
-
         // TODO possible move operator checking to post-parser, since this is a parser job.
         function doOperator() {
             const previousToken = parsedLatex[index - 1];
-
 
             if (index === 0 && (item.value === '+')) {
                 logger.debug('Structure starts with +, ignoring');
@@ -138,12 +132,10 @@ export function transpiler(parsedLatex) {
                 }
             }
 
-
             if ((item.operatorType === 'infix' || item.operatorType === 'prefix') && index === (parsedLatex.length - 1)) {
                 throw new Error('Operator ' + item.value + ' is an invalid end character.');
             }
         }
-
 
         function doNumber() {
             addTimesSign(index, {type: 'number'}, {type: 'operator', operatorType: 'infix'});
@@ -151,7 +143,7 @@ export function transpiler(parsedLatex) {
         }
 
         function doVariable() {
-            let variableString = "";
+            let variableString = '';
             addTimesSign(index, {type: 'operator', operatorType: 'infix'});
 
             if (getName(item.value) !== null) {
@@ -169,7 +161,7 @@ export function transpiler(parsedLatex) {
         }
 
         function doGroup() {
-            let groupString = "";
+            let groupString = '';
 
             addTimesSign(index, {type: 'function'}, {type: 'operator'});
 
@@ -187,7 +179,7 @@ export function transpiler(parsedLatex) {
 
             logger.debug('Handling token: ' + item.value);
 
-            let tokenString = "";
+            let tokenString = '';
             let startIndex = index;
 
             if (getSymbol(item.value) !== null) {
@@ -210,17 +202,15 @@ export function transpiler(parsedLatex) {
                 tokenString += letter;
             }
 
-
             if (isMacro(item.value)) {
                 let macro = MACROS.get(item.value);
                 if (macro === null) {
-                    logger.debug("Skipping macro " + item.value)
+                    logger.debug('Skipping macro ' + item.value);
                 } else if (macro !== undefined) {
-                    logger.debug("Adding macro " + macro);
+                    logger.debug('Adding macro ' + macro);
                     tokenString += macro;
                 }
             }
-
 
             // Handle fraction
             if (item.value === 'frac') {
@@ -235,11 +225,9 @@ export function transpiler(parsedLatex) {
                 }
             }
 
-
-            if (startIndex > 0 && tokenString !== "" && (isMacro(item.value) || isGreekLetter(item.value))) {
+            if (startIndex > 0 && tokenString !== '' && (isMacro(item.value) || isGreekLetter(item.value))) {
                 addTimesSign(startIndex, {type: 'operator'});
             }
-
 
             transpiledString += tokenString;
         }
@@ -252,7 +240,7 @@ export function transpiler(parsedLatex) {
 
             if (item.value === 'sqrt') {
                 if (parsedLatex[index + 1].type === 'group') {
-                    let sqrtString = "";
+                    let sqrtString = '';
                     if (parsedLatex[index + 1].symbol === 'square' && parsedLatex[index + 2].type === 'group') {
                         logger.debug('Found function nth-square root');
                         let nthArgString = transpiler(parsedLatex[index + 1].value);
@@ -408,7 +396,7 @@ export function transpiler(parsedLatex) {
             }
 
             function handleAbs() {
-                let expression = "";
+                let expression = '';
                 let func = item.value;
                 expression += func;
                 expression += transpiler(wrapForTranspilation(parsedLatex[index + 1]));
@@ -421,9 +409,9 @@ export function transpiler(parsedLatex) {
 
             function handleBinomial() {
                 // TODO doesn't handle \binom234 as 2 and 3 needs to be parsed as single digits... this is a parser problem...
-                let binomialString = "";
-                let expression1 = "";
-                let expression2 = "";
+                let binomialString = '';
+                let expression1 = '';
+                let expression2 = '';
 
                 let expr1 = parsedLatex[index + 1].type;
                 let expr2 = parsedLatex[index + 2].type;
@@ -436,7 +424,7 @@ export function transpiler(parsedLatex) {
                 }
 
                 binomialString += buildMaximaFunctionString(
-                    'binomial', expression1, expression2
+                    'binomial', expression1, expression2,
                 );
 
                 transpiledString += binomialString;
@@ -444,28 +432,29 @@ export function transpiler(parsedLatex) {
             }
 
             function handleLimit() {
-                // TODO: review: first arg in limit isn't recognized if it is a multi char variable and onlySingleVariables option is true
+                // TODO: review: first arg in limit isn't recognized if it is a multi char variable and onlySingleVariables option
+                // is true
 
                 let limitString = '';
                 let expression = '';
-
 
                 if (parsedLatex[index + 1].value === '_' && parsedLatex[index + 2].type === 'group') {
                     let limitArgs = parsedLatex[index + 2].value;
                     limitArgs = handleLimitArguments(limitArgs);
 
                     if (typeof parsedLatex[index + 3] !== 'undefined') {
-                        let {expressionLength: limitLength} = getExpressionLength(parsedLatex.slice((index + 3)), [], ['+', '-', '+-']);
+                        let {expressionLength: limitLength} = getExpressionLength(parsedLatex.slice((index + 3)), [],
+                            ['+', '-', '+-']);
 
                         expression += transpiler(parsedLatex.slice((index + 3), ((index + 3) + limitLength)));
                         index += (limitLength - 1);
 
                     } else {
-                        throw new Error('Missing argument in limit')
+                        throw new Error('Missing argument in limit');
                     }
 
                     limitString = buildMaximaFunctionString(
-                        'limit', expression, limitArgs.variable, limitArgs.value, limitArgs.direction
+                        'limit', expression, limitArgs.variable, limitArgs.value, limitArgs.direction,
                     );
 
                     index += 3;
@@ -478,7 +467,7 @@ export function transpiler(parsedLatex) {
 
             function handleSum() {
                 let sumString = '';
-                let expression = "";
+                let expression = '';
                 let lowerArgAssignment, upperArg;
                 let indexVariable = '';
 
@@ -505,11 +494,11 @@ export function transpiler(parsedLatex) {
                     index += (sumLength);
 
                 } else {
-                    throw new Error('Missing argument in sum')
+                    throw new Error('Missing argument in sum');
                 }
 
                 sumString += buildMaximaFunctionString(
-                    'sum', expression, indexVariable, lowerArgAssignment, upperArg
+                    'sum', expression, indexVariable, lowerArgAssignment, upperArg,
                 );
 
                 transpiledString += sumString;
@@ -517,12 +506,11 @@ export function transpiler(parsedLatex) {
 
             function handleIntegral() {
                 let integralString = '';
-                let expression = "";
+                let expression = '';
                 let lowerLimit, upperLimit;
                 let integrationVariable = '';
                 let integralLength;
                 let isSymbolic = false;
-
 
                 assertNotUndefined(parsedLatex[index + 1], 'Missing argument in integral');
 
@@ -546,7 +534,6 @@ export function transpiler(parsedLatex) {
 
                 let integralEnd = findIntegralEnd(parsedLatex.slice(index));
 
-
                 integrationVariable += integralEnd.variable;
                 integralLength = integralEnd.length;
 
@@ -557,19 +544,18 @@ export function transpiler(parsedLatex) {
                     unTranspiledIntegralLatex.splice(-1, 1);
                 }
 
-
                 expression += transpiler(unTranspiledIntegralLatex);
 
                 index += (integralLength);
 
                 if (isSymbolic) {
                     integralString += buildMaximaFunctionString(
-                        'integrate', expression, integrationVariable
+                        'integrate', expression, integrationVariable,
                     );
 
                 } else {
                     integralString += buildMaximaFunctionString(
-                        'integrate', expression, integrationVariable, lowerLimit, upperLimit
+                        'integrate', expression, integrationVariable, lowerLimit, upperLimit,
                     );
 
                 }
@@ -587,12 +573,10 @@ export function transpiler(parsedLatex) {
                 let expression = '';
                 let envLength = environmentLength(parsedLatex.slice((index)));
 
-
                 if (item.value === 'matrix') {
                     logger.debug('Found matrix environment');
                     expression += handleMatrix(parsedLatex.slice((index + 1), (index + 1) + envLength));
                 }
-
 
                 index += (envLength + 1);
                 transpiledString += expression;
@@ -603,14 +587,15 @@ export function transpiler(parsedLatex) {
         }
     }
 
-
     transpiledString += ')';
 
     if (/(\([ ]*\))/.test(transpiledString)) {
         throw new Error('Syntax error');
     }
 
-    if (transpiledString === '') throw new Error('EMPTY'); //TODO FIX, possibly remove
+    if (transpiledString === '') {
+        throw new Error('EMPTY');
+    } //TODO FIX, possibly remove
 
     return transpiledString;
 }
