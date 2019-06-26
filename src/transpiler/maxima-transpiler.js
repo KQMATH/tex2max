@@ -293,15 +293,55 @@ export function transpiler(parsedLatex) {
                 logger.debug('Found function "abs"');
                 handleAbs();
 
+            } else if (isTrigonometricFunction(item.value)) {
+                logger.debug('Found trigonometric function "' + item.value + '"');
+                handleTrig();
+
             } else {
                 logger.debug('Found normal "function"');
                 handleNormalFunction();
 
             }
 
-
             function handleNormalFunction() {
-                let expression = "";
+                let expression = '';
+                let func = item.value;
+
+                assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func);
+                expression += func;
+                index++;
+
+                if (parsedLatex[index].type === 'group') {
+                    expression += transpiler(parsedLatex[index].value);
+                    index++;
+
+                } else if (parsedLatex[index].type === 'function') {
+                    let {expressionLength} = getExpressionLength(parsedLatex.slice((index + 1)), ['function'], ['+', '-', '+-']);
+                    expressionLength += 1;
+
+                    expression += transpiler(wrapForTranspilation(parsedLatex.slice(index, (index + expressionLength))));
+                    index += expressionLength - 1;
+
+                } else {
+                    let latexSlice = parsedLatex.slice(index);
+
+                    let i;
+                    for (i = 0; i < latexSlice.length; i++) {
+                        if (latexSlice[i].type !== 'variable' && latexSlice[i].type !== 'number') {
+                            break;
+                        }
+                    }
+
+                    let expressionLength = i;
+                    expression += transpiler(wrapForTranspilation(parsedLatex.slice(index, (index + expressionLength))));
+                    index += expressionLength - 1;
+                }
+
+                transpiledString += expression;
+            }
+
+            function handleTrig() {
+                let expression = '';
                 let exponentiate = false;
                 let exponent;
 
@@ -320,15 +360,11 @@ export function transpiler(parsedLatex) {
                         logger.debug('Function is inverse');
                         exponentiate = false;
 
-                        if (isTrigonometricFunction(func)) {
-                            let inverseFunc = getInverseTrigonometricFunction(func);
-                            if (inverseFunc !== null) {
-                                func = inverseFunc;
-                            } else {
-                                throw new Error('No inverse trigonometric function found for ' + func);
-                            }
+                        let inverseFunc = getInverseTrigonometricFunction(func);
+                        if (inverseFunc !== null) {
+                            func = inverseFunc;
                         } else {
-                            throw new Error('Function "' + func + '" is not an trigonometric function');
+                            throw new Error('No inverse trigonometric function found for ' + func);
                         }
                     }
                     index += 2;
@@ -337,20 +373,30 @@ export function transpiler(parsedLatex) {
                 expression += func;
 
                 if (exponentiate) {
-                    assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func + '^' + transpiler(wrapForTranspilation(parsedLatex[index])));
+                    assertNotUndefined(parsedLatex[index + 1],
+                        'Missing argument in function: ' + func + '^' + transpiler(wrapForTranspilation(parsedLatex[index])));
                 } else {
                     assertNotUndefined(parsedLatex[index + 1], 'Missing argument in function: ' + func);
                 }
 
-                // Find length of expression....
-                let {expressionLength: functionLength, condition, conditionValue} = getExpressionLength(parsedLatex.slice((index + 1)), ['function'], ['+', '-', '+-']);
+                if (parsedLatex[index + 1].type === 'group') {
+                    expression += transpiler(parsedLatex[index + 1].value);
+                    index++;
 
-                if (functionLength === 0 && condition === 'type' && conditionValue === 'function') {
-                    functionLength = 2;
+                } else if (parsedLatex[index + 1].type === 'function') {
+                    let {expressionLength} = getExpressionLength(parsedLatex.slice((index + 2)), ['function'], ['+', '-', '+-']);
+                    expressionLength += 1;
+
+                    expression += transpiler(
+                        wrapForTranspilation(parsedLatex.slice((index + 1), ((index + 1) + expressionLength))));
+                    index += expressionLength - 1;
+
+                } else {
+                    let {expressionLength} = getExpressionLength(parsedLatex.slice((index + 1)), ['function'], ['+', '-', '+-']);
+                    expression += transpiler(
+                        wrapForTranspilation(parsedLatex.slice((index + 1), ((index + 1) + expressionLength))));
+                    index += expressionLength - 1;
                 }
-
-                expression += transpiler(wrapForTranspilation(parsedLatex.slice((index + 1), ((index + 1) + functionLength))));
-                index += functionLength - 1;
 
                 if (exponentiate) {
                     expression = '(' + expression + ')' + '^' + exponent;
