@@ -59,6 +59,11 @@ export const TOKEN_TYPES = {
         symbol: null,
         regex: /^[0-9]+$/i
     },
+    PERIOD: {
+        name: "PERIOD",
+        symbol: ".",
+        regex: /^[.]$/
+    },
     STRING_LITERAL: {
         name: "STRING_LITERAL",
         symbol: null,

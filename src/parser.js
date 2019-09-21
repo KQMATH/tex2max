@@ -117,6 +117,22 @@ export function parseLatex(tokens) {
         }
     }
 
+    function parseDecimalSeparator() {
+        logger.debug('Parsing decimal number: ' + getCurrentChar());
+        let nextToken = peekType();
+        let previousStructureType = lookBack(1);
+
+        if (previousStructureType !== 'number') {
+            // TODO review if this should be allowed ".2" instead of "0.2".
+            throw new Error('Leading decimal separators are not allowed');
+        }
+
+        return {
+            type: 'decimal_separator',
+            value: consume(),
+        };
+    }
+
     function parseWord() {
         logger.debug('- Found letter \"' + getCurrentChar() + '\"');
 
@@ -502,6 +518,10 @@ export function parseLatex(tokens) {
             case TOKEN_TYPES.NUMBER_LITERAL:
                 logger.debug('Found NUMBER_LITERAL \"' + getCurrentChar() + '\"');
                 parsedResult = parseNumber();
+                break;
+            case TOKEN_TYPES.PERIOD:
+                logger.debug('Found PERIOD\"' + getCurrentChar() + '\"');
+                parsedResult = parseDecimalSeparator();
                 break;
             case TOKEN_TYPES.BACKSLASH:
                 logger.debug('Found BACKSLASH \"' + getCurrentChar() + '\"');
