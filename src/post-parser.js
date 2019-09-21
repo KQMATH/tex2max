@@ -63,7 +63,10 @@ export function postParse(parsedLatex) {
                 logger.debug('Found bracket \"' + value + '\"');
                 node = parseGroup();
                 break;
-
+            case 'number':
+                logger.debug('Found number  \"' + value + '\"');
+                node = parseNumber();
+                break;
             default:
                 node = item;
                 break;
@@ -100,34 +103,24 @@ export function postParse(parsedLatex) {
     }
 
     function peekItem(position) {
-        return parsedLatex[index + position]
-            ? parsedLatex[index + 1]
-            : null;
+        if (typeof parsedLatex[index + position] === 'undefined') {
+            return null;
+        }
+        return parsedLatex[index + position];
     }
 
     function peekType(position) {
-        return parsedLatex[index + position]
-            ? parsedLatex[index + 1].type
-            : null;
+        if (typeof parsedLatex[index + position] === 'undefined') {
+            return null;
+        }
+        return parsedLatex[index + position].type;
     }
 
     function peekValue(position) {
-        return parsedLatex[index + position] ? parsedLatex[index +
-        position].value : null;
-    }
-
-    function lookBack(position) {
-        return parsedLatex[index - position];
-    }
-
-    function lookBackValue() {
-        let previousToken = parsedLatex[index - 1];
-        return previousToken ? previousToken.value : null;
-    }
-
-    function lookBackType(position) {
-        let previousToken = parsedLatex[index - position];
-        return previousToken ? previousToken.type : null;
+        if (typeof parsedLatex[index + position] === 'undefined') {
+            return null;
+        }
+        return parsedLatex[index + position].value;
     }
 
     function parseGroup() {
@@ -147,6 +140,57 @@ export function postParse(parsedLatex) {
             symbol: groupName,
             value: postParse(newItems),
         };
+    }
+
+    function parseNumber() {
+        let node;
+
+        if (peekType(1) === 'decimal_separator') {
+            node = parseFloat();
+        } else  {
+            node = getCurrentItem();
+        }
+        return node;
+    }
+
+    function parseFloat() {
+        let node;
+        let float;
+
+        if (decimalSeparatorQuantityInNumber() > 1) {
+            throw new Error('Only one decimal separator is allowed');
+        }
+
+        if (peekType(2) === 'number') {
+            logger.debug("- Found fractional part decimal part\"" + getCurrentValue() + "\", continuing parsing");
+            let decimal_separator = peekValue(1);
+            float = getCurrentValue() + decimal_separator + peekValue(2);
+
+        } else {
+            throw new Error('Trailing decimal separator isn\'t allowed');
+        }
+        index += 2;
+
+        node = {
+            type: 'number',
+            value: float,
+        };
+        return node;
+    }
+
+    function decimalSeparatorQuantityInNumber() {
+        let i = 0;
+        let isNumber = true;
+        let quantity = 0;
+        while (isNumber) {
+            if (peekType(i) === 'decimal_separator') {
+                quantity++;
+            } else if (peekType(i) !== 'number'){
+                isNumber = false
+            }
+            i++;
+        }
+        return quantity;
     }
 
     function parseDelimiter() {
