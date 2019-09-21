@@ -102,13 +102,6 @@ export function postParse(parsedLatex) {
         return parsedLatex[index].type;
     }
 
-    function lookBack(position) {
-        if (typeof parsedLatex[index - position] === 'undefined') {
-            return null;
-        }
-        return parsedLatex[index - position];
-    }
-
     function peekItem(position) {
         if (typeof parsedLatex[index + position] === 'undefined') {
             return null;
@@ -128,20 +121,6 @@ export function postParse(parsedLatex) {
             return null;
         }
         return parsedLatex[index + position].value;
-    }
-
-    function lookBack(position) {
-        return parsedLatex[index - position];
-    }
-
-    function lookBackValue() {
-        let previousToken = parsedLatex[index - 1];
-        return previousToken ? previousToken.value : null;
-    }
-
-    function lookBackType(position) {
-        let previousToken = parsedLatex[index - position];
-        return previousToken ? previousToken.type : null;
     }
 
     function parseGroup() {
