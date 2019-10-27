@@ -117,10 +117,25 @@ export function parseLatex(tokens) {
         }
     }
 
-    function parseDecimalSeparator() {
-        logger.debug('Parsing decimal number: ' + getCurrentChar());
-        let nextToken = peekType();
+    function parseComma() {
+        logger.debug('Parsing comma: ' + getCurrentChar());
+
+        if (options.disallowDecimalCommas) {
+            throw new Error('The current options doesn\'t allow decimal commas ","');
+        }
+        return {
+            type: 'comma',
+            value: consume(),
+        };
+    }
+
+    function parsePoint() {
+        logger.debug('Parsing point: ' + getCurrentChar());
         let previousStructureType = lookBack(1);
+
+        if (options.disallowDecimalPoints) {
+            throw new Error('The current options doesn\'t allow decimal points "."');
+        }
 
         if (previousStructureType !== 'number') {
             // TODO review if this should be allowed ".2" instead of "0.2".
@@ -128,7 +143,7 @@ export function parseLatex(tokens) {
         }
 
         return {
-            type: 'decimal_separator',
+            type: 'point',
             value: consume(),
         };
     }
@@ -139,7 +154,7 @@ export function parseLatex(tokens) {
         let sequence = "";
 
         if (peekType() === TOKEN_TYPES.STRING_LITERAL.name) {
-            logger.debug(', Continuing parsing')
+            logger.debug(', Continuing parsing');
             sequence = consume() + parseWord(TOKEN_TYPES.STRING_LITERAL.name);
             logger.debug('Current word: ' + sequence)
         } else {
@@ -520,8 +535,12 @@ export function parseLatex(tokens) {
                 parsedResult = parseNumber();
                 break;
             case TOKEN_TYPES.PERIOD:
-                logger.debug('Found PERIOD\"' + getCurrentChar() + '\"');
-                parsedResult = parseDecimalSeparator();
+                logger.debug('Found PERIOD \"' + getCurrentChar() + '\"');
+                parsedResult = parsePoint();
+                break;
+            case TOKEN_TYPES.COMMA:
+                logger.debug('Found COMMA \"' + getCurrentChar() + '\"');
+                parsedResult = parseComma();
                 break;
             case TOKEN_TYPES.BACKSLASH:
                 logger.debug('Found BACKSLASH \"' + getCurrentChar() + '\"');

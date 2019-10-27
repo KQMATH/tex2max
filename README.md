@@ -84,6 +84,18 @@ Enable to let Maxima [solve](http://maxima.sourceforge.net/docs/manual/maxima_20
 
 Add multiplication sign where multiplication is implied.
 
+### disallowDecimalPoints
+- Type: `Boolean`
+- Default: `false`
+
+Enable to disallow decimal point separators `.` in numbers.
+
+### disallowllowDecimalCommas
+- Type: `Boolean`
+- Default: `false`
+
+Enable to disallow decimal comma separators `,` in numbers.
+
 ### onlyGreekName
 - Type: `Boolean`
 - Default: `false`
