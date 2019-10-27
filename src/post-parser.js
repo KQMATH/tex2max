@@ -157,6 +157,16 @@ export function postParse(parsedLatex) {
         return node;
     }
 
+    function parseSet() {
+        // Implement sets here
+        // handle commas as entities separator within the braces {a, b}
+        // Enforce correct number of commas.
+        // Only allow period in floats.
+
+        // split items between braces in an array and itterate it, recursively post parce it.
+
+    }
+
     function parseFloat() {
         let node;
         let float;
