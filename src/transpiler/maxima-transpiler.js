@@ -15,6 +15,7 @@ import {getOptions} from '../options';
 import * as logger from '../logger';
 import {getName, getSymbol, isGreekLetter} from '../tokens/greek-letters';
 import {getInverseTrigonometricFunction, isTrigonometricFunction} from '../functions';
+import {isMatrixEnvironment} from '../environments';
 
 /**
  * Will transpile a mathematical expression representation, derived from LaTeX,
@@ -582,7 +583,7 @@ export function transpiler(parsedLatex) {
                 let expression = '';
                 let envLength = environmentLength(parsedLatex.slice((index)));
 
-                if (item.value === 'matrix') {
+                if (isMatrixEnvironment(item.value)) {
                     logger.debug('Found matrix environment');
                     expression += handleMatrix(parsedLatex.slice((index + 1), (index + 1) + envLength));
                 }
