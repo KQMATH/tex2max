@@ -5,7 +5,7 @@
 
 import {isIgnoredMacro, isMacro, MACROS_OVERRIDE} from "./macros";
 import {getFunctionName, isFunction} from "./functions";
-import {environments} from "./environments";
+import {isEnvironment} from "./environments";
 import {TOKEN_TYPES} from "./tokens/tokens";
 import {RESERVED_WORDS} from "./reservedWords";
 import {getOptions} from "./options";
@@ -337,17 +337,8 @@ export function parseLatex(tokens) {
         return macro;
     }
 
-    function isEnvironment(functionalWord) {
-        const isEnvironment = environments.reduce((acc, val) => {
-            return acc || val === functionalWord;
-        }, false);
-
-        logger.debug("Is acknowledged environment?: " + isEnvironment);
-        return isEnvironment;
-    }
-
     function parseEnvironment(state) {
-        if (getCurrentChar() !== TOKEN_TYPES.OPENING_BRACKET.symbol) {
+        if (getCurrentChar() !== TOKEN_TYPES.OPENING_BRACE.symbol) {
             throw new Error('No argument for environments are present.')
         }
         skipToken(); // Skip brace
