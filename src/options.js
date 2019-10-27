@@ -11,6 +11,8 @@ export const DEFAULTS = {
     onlySingleVariables: false,
     handleEquation: false,
     addTimesSign: true,
+    disallowDecimalPoints: false,
+    disallowDecimalCommas: false,
     onlyGreekName: false,
     onlyGreekSymbol: false,
     debugging: false
@@ -20,6 +22,7 @@ export const DEFAULTS = {
  * Defines rules to be enforced on the TeX2Max options.
  */
 function enforceRules() {
+    checkOnlyOneTrue(['disallowDecimalPoints', 'disallowDecimalCommas']);
     checkOnlyOneTrue(['onlyGreekName', 'onlyGreekSymbol']);
 }
 

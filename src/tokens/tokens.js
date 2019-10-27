@@ -64,6 +64,11 @@ export const TOKEN_TYPES = {
         symbol: ".",
         regex: /^[.]$/
     },
+    COMMA: {
+        name: "COMMA",
+        symbol: ",",
+        regex: /^[,]$/
+    },
     STRING_LITERAL: {
         name: "STRING_LITERAL",
         symbol: null,

@@ -67,6 +67,10 @@ export function postParse(parsedLatex) {
                 logger.debug('Found number  \"' + value + '\"');
                 node = parseNumber();
                 break;
+            case 'comma':
+                logger.debug('Found comma  \"' + value + '\"');
+                node = parseComma();
+                break;
             default:
                 node = item;
                 break;
@@ -145,7 +149,7 @@ export function postParse(parsedLatex) {
     function parseNumber() {
         let node;
 
-        if (peekType(1) === 'decimal_separator') {
+        if (peekType(1) === 'point' || peekType(1) === 'comma') {
             node = parseFloat();
         } else  {
             node = getCurrentItem();
@@ -162,7 +166,7 @@ export function postParse(parsedLatex) {
         }
 
         if (peekType(2) === 'number') {
-            logger.debug("- Found fractional part decimal part\"" + getCurrentValue() + "\", continuing parsing");
+            logger.debug("- Found fractional decimal part\"" + getCurrentValue() + "\", continuing parsing");
             let decimal_separator = peekValue(1);
             float = getCurrentValue() + decimal_separator + peekValue(2);
 
@@ -172,7 +176,7 @@ export function postParse(parsedLatex) {
         index += 2;
 
         node = {
-            type: 'number',
+            type: 'float',
             value: float,
         };
         return node;
@@ -183,7 +187,7 @@ export function postParse(parsedLatex) {
         let isNumber = true;
         let quantity = 0;
         while (isNumber) {
-            if (peekType(i) === 'decimal_separator') {
+            if (peekType(i) === 'point' || peekType(i) === 'comma') {
                 quantity++;
             } else if (peekType(i) !== 'number'){
                 isNumber = false
@@ -191,6 +195,15 @@ export function postParse(parsedLatex) {
             i++;
         }
         return quantity;
+    }
+
+    function parseComma() {
+        /**
+         * If this function is invoked, it is a comma error in the expression.
+         * All other "comma handling" should have happen before this function is called.
+         * Alternatively, to allow leading decimals, one should handle this in this function.
+        */
+        throw new Error('Leading decimal separators are not allowed');
     }
 
     function parseDelimiter() {

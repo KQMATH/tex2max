@@ -44,6 +44,9 @@ export function transpiler(parsedLatex) {
             case 'number':
                 doNumber();
                 break;
+            case 'float':
+                doFloat();
+                break;
             case 'variable':
                 doVariable();
                 break;
@@ -138,8 +141,14 @@ export function transpiler(parsedLatex) {
         }
 
         function doNumber() {
-            addTimesSign(index, {type: 'number'}, {type: 'operator', operatorType: 'infix'});
+            addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
             transpiledString += item.value;
+        }
+
+        function doFloat() {
+            addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
+            let float = item.value.replace(",", ".");
+            transpiledString += float;
         }
 
         function doVariable() {
@@ -315,7 +324,7 @@ export function transpiler(parsedLatex) {
 
                     let i;
                     for (i = 0; i < latexSlice.length; i++) {
-                        if (latexSlice[i].type !== 'variable' && latexSlice[i].type !== 'number') {
+                        if (latexSlice[i].type !== 'variable' && (latexSlice[i].type !== 'number' ||  latexSlice[i].type !== 'float')) {
                             break;
                         }
                     }
