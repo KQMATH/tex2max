@@ -1,3 +1,1 @@
-import merge from '../src/index'
-
-module.exports = merge;
+module.exports = require('../src/index').default;
