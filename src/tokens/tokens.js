@@ -79,4 +79,9 @@ export const TOKEN_TYPES = {
         symbol: null,
         regex: /^[+\-*/=^_!]$/i
     },
+    SEMICOLON: {
+        name: "SEMICOLON",
+        symbol: ";",
+        regex: /^[;]$/
+    }
 };

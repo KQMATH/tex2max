@@ -286,6 +286,16 @@ export function parseLatex(tokens) {
         return node;
     }
 
+    function parseSemicolon() {
+        let node = null;
+        node = {
+            type: 'semicolon',
+            value: consume()
+        };
+
+        return node;
+    }
+
     function parseBracket() {
         let node = null;
         let bracketName = getBracketName(getCurrentTypeSymbol());
@@ -563,6 +573,10 @@ export function parseLatex(tokens) {
             case TOKEN_TYPES.VERTICAL_BAR:
                 logger.debug('Found VERTICAL_BAR \"' + getCurrentChar() + '\"');
                 parsedResult = parseVerticalBar();
+                break;
+            case TOKEN_TYPES.SEMICOLON:
+                logger.debug('Found SEMICOLON \"' + getCurrentChar() + '\"');
+                parsedResult = parseSemicolon();
                 break;
 
             default:

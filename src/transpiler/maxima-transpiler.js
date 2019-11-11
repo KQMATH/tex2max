@@ -54,6 +54,9 @@ export function transpiler(parsedLatex) {
             case 'group':
                 doGroup();
                 break;
+            case 'set':
+                doSet();
+                break;
             case 'token':
                 doToken();
                 break;
@@ -62,6 +65,9 @@ export function transpiler(parsedLatex) {
                 break;
             case 'environment':
                 doEnvironment();
+                break;
+            case 'semicolon':
+                doSemicolon();
                 break;
         }
 
@@ -90,7 +96,7 @@ export function transpiler(parsedLatex) {
                         }
                     }
 
-                    if (allKeysMatch === true) {
+                    if (allKeysMatch === true || previousToken.type==='semicolon') {
                         isPass = false;
                     }
                 });
@@ -146,6 +152,10 @@ export function transpiler(parsedLatex) {
             transpiledString += item.value;
         }
 
+        function doSemicolon() {
+            transpiledString += ',';
+        }
+
         function doFloat() {
             addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
             let float = item.value.replace(",", ".");
@@ -184,6 +194,22 @@ export function transpiler(parsedLatex) {
             transpiledString += groupString;
 
         }
+
+        function doSet() {
+            let setString = '';
+
+            addTimesSign(index, {type: 'function'}, {type: 'operator'});
+
+            setString += transpiler(item.value);
+
+            if(setString[0] === '(' && setString[setString.length-1] === ')') {
+              setString = stripParenthesis(setString);
+            }
+
+            transpiledString += '{' + setString + '}';
+
+        }
+
 
         function doToken() {
 
