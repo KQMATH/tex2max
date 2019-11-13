@@ -34,7 +34,7 @@ export function parseLatex(tokens) {
         return value && typeof value === 'object' && value.constructor === Array;
     }
 
-    function consume() {
+    function consume() { // go to the next element
         logger.debug("Consuming position: " + index);
         return tokens[index++].value;
     }
@@ -60,11 +60,11 @@ export function parseLatex(tokens) {
         return tokens[index + 1];
     }
 
-    function peekType() {
+    function peekType() { // get the type of the next token if there exist a next token, otherwise return null
         return tokens[index + 1] ? tokens[index + 1].type.name : null;
     }
 
-    function peekValue() {
+    function peekValue() { // it returns undefined in case there isn't an element after the token
         return tokens[index + 1].value;
     }
 
@@ -97,8 +97,8 @@ export function parseLatex(tokens) {
     function parseNumber() {
         logger.debug('Parsing number: ' + tokens[index].value);
 
-        let nextToken = peekType();
-        let previousTokenValue = lookBackValue();
+        let nextToken = peekType(); // type of the next token
+        let previousTokenValue = lookBackValue(); // value of the previous token
         let previousStructureType = lookBack(1); // Check if previously added structure is a function
         if (previousTokenValue !== '^' && previousTokenValue !== '_' && previousStructureType !== 'function') {
             if ((nextToken !== null && nextToken === TOKEN_TYPES.NUMBER_LITERAL.name)) {

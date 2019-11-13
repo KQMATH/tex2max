@@ -27,17 +27,17 @@ import {isMatrixEnvironment} from '../environments';
  */
 export function transpiler(parsedLatex) {
     logger.debug('\n------------------ TRANSPILING -> -------------------');
-    const options = getOptions();
+    const options = getOptions(); // gets the environmental options
 
     let transpiledString = '';
     let index = 0;
 
     transpiledString += '(';
 
-    for (index; index < parsedLatex.length; index++) {
-        const item = parsedLatex[index];
+    for (index; index < parsedLatex.length; index++) { // for every element from post-parsing
+        const item = parsedLatex[index]; // current element (this is an object)
 
-        switch (item.type) {
+        switch (item.type) { // the element has a type
 
             case 'operator':
                 doOperator();
@@ -81,8 +81,8 @@ export function transpiler(parsedLatex) {
          * @param index
          * @param obj
          */
-        function addTimesSign(index, ...obj) {
-            let previousToken = parsedLatex[index - 1];
+        function addTimesSign(index, ...obj) { // Adds a times (*) sign if necessary (e.g. 8x => 8*x)
+            let previousToken = parsedLatex[index - 1]; // in order to decide whther * is necessary, read the previous element
             let isPass = true;
             if (index > 0) {
                 obj.forEach(e => {
@@ -111,20 +111,20 @@ export function transpiler(parsedLatex) {
 
         // TODO possible move operator checking to post-parser, since this is a parser job.
         function doOperator() {
-            const previousToken = parsedLatex[index - 1];
+            const previousToken = parsedLatex[index - 1]; // read the previous element
 
-            if (index === 0 && (item.value === '+')) {
+            if (index === 0 && (item.value === '+')) { // the first element is +
                 logger.debug('Structure starts with +, ignoring');
-            } else if (index === 0 && item.operatorType !== 'prefix' && item.value !== '-') {// TODO add "-" as valid prefix
+            } else if (index === 0 && item.operatorType !== 'prefix' && item.value !== '-') { // the first element is not a prefix neither a -; TODO add "-" as valid prefix
                 throw new Error('Operator ' + item.value + ' is not an prefix operator');
 
             } else {
-                if (item.value === '+' || item.value === '-') {
-                    transpiledString += item.value;
+                if (item.value === '+' || item.value === '-') { // + or - but not in the first position
+                    transpiledString += item.value; // add it to the string
 
-                } else if (item.operatorType === 'postfix') {
-                    if (previousToken.type !== 'operator') {
-                        transpiledString += item.value;
+                } else if (item.operatorType === 'postfix') { // if this is a postfix operator
+                    if (previousToken.type !== 'operator') { // and the previous element wasn't an operator
+                        transpiledString += item.value; // add to the string
                     } else {
                         throw new Error('Operator ' + item.value + ' has to be an postfix operator');
                     }
@@ -142,6 +142,7 @@ export function transpiler(parsedLatex) {
                 }
             }
 
+            // If the operator is infix or prefix and it is the last element
             if ((item.operatorType === 'infix' || item.operatorType === 'prefix') && index === (parsedLatex.length - 1)) {
                 throw new Error('Operator ' + item.value + ' is an invalid end character.');
             }
@@ -152,14 +153,14 @@ export function transpiler(parsedLatex) {
             transpiledString += item.value;
         }
 
-        function doSemicolon() {
+        function doSemicolon() { // FIX: now the semicolon is converted into a comma
             transpiledString += ',';
         }
 
         function doFloat() {
             addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
-            let float = item.value.replace(",", ".");
-            transpiledString += float;
+            let float = item.value.replace(",", "."); // when a comma is found, replace it with a point
+            transpiledString += float; // then add the element to the string
         }
 
         function doVariable() {
@@ -187,7 +188,7 @@ export function transpiler(parsedLatex) {
 
             groupString += transpiler(item.value);
 
-            if (item.symbol === 'vertical_bar') {
+            if (item.symbol === 'vertical_bar') { // this represents the absolute value: you don't need partenthesis
                 groupString = stripParenthesis(groupString);
             }
 
@@ -203,10 +204,10 @@ export function transpiler(parsedLatex) {
             setString += transpiler(item.value);
 
             if(setString[0] === '(' && setString[setString.length-1] === ')') {
-              setString = stripParenthesis(setString);
+              setString = stripParenthesis(setString); // Parenthesis not needed, since there are already {}
             }
 
-            transpiledString += '{' + setString + '}';
+            transpiledString += '{' + setString + '}'; // the set has to be enclosed in {}!
 
         }
 
