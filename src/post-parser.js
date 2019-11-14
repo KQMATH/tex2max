@@ -173,24 +173,10 @@ export function postParse(parsedLatex) {
     const newItems = parsedLatex.slice(index + 1, index + (length));
     logger.debug('New set created2');
 
-<<<<<<< HEAD
+
     index += length;
-=======
-    function parseSet() {
-        // Implement sets here
-        // handle commas as entities separator within the braces {a, b}
-        // Enforce correct number of commas.
-        // Only allow period in floats.
 
-        // split items between braces in an array and itterate it, recursively post parce it.
-
-    }
-
-    function parseFloat() {
-        let node;
-        let float;
->>>>>>> a9ffa167458e14e413ed0155ccff00296927cdd7
-
+    
     return {
       type: 'set',
       symbol: setName,
