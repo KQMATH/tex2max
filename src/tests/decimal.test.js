@@ -69,3 +69,36 @@ test('Point type decimal number with more than one decimal separator that should
 test('Point type decimal number with trailing decimal separator in simple function that should throw an error',
     [transpilationError],
     '\\sin(.2)');
+
+// Comma type "," decimal numbers
+test('Short comma type decimal number with leading zero',
+    [transpilation, singleVars],
+    '0,2', '0.2');
+
+test('Long comma type decimal number with leading zero',
+    [transpilation, singleVars],
+    '1234,1234', '1234.1234');
+
+test('Short comma type decimal number with leading zero in simple function',
+    [transpilation, singleVars],
+    '\\sin(0,2)', 'sin(0.2)');
+
+test('Long comma type decimal number with leading zero in simple function',
+    [transpilation, singleVars],
+    '\\sin(1234,1234)', 'sin(1234.1234)');
+
+test('comma type decimal number with leading decimal separator that should throw an error',
+    [transpilationError],
+    ',2');
+
+test('Comma type decimal number with trailing decimal separator that should throw an error',
+    [transpilationError],
+    ',2');
+
+test('Comma type decimal number with more than one decimal separator that should throw an error',
+    [transpilationError],
+    '1,2,3');
+
+test('Comma type decimal number with trailing decimal separator in simple function that should throw an error',
+    [transpilationError],
+    '\\sin(,2)');

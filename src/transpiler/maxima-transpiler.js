@@ -15,6 +15,7 @@ import {getOptions} from '../options';
 import * as logger from '../logger';
 import {getName, getSymbol, isGreekLetter} from '../tokens/greek-letters';
 import {getInverseTrigonometricFunction, isTrigonometricFunction} from '../functions';
+import {isMatrixEnvironment} from '../environments';
 
 /**
  * Will transpile a mathematical expression representation, derived from LaTeX,
@@ -43,6 +44,9 @@ export function transpiler(parsedLatex) {
                 break;
             case 'number':
                 doNumber();
+                break;
+            case 'float':
+                doFloat();
                 break;
             case 'variable':
                 doVariable();
@@ -138,8 +142,14 @@ export function transpiler(parsedLatex) {
         }
 
         function doNumber() {
-            addTimesSign(index, {type: 'number'}, {type: 'operator', operatorType: 'infix'});
+            addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
             transpiledString += item.value;
+        }
+
+        function doFloat() {
+            addTimesSign(index, {type: 'number'}, {type: 'float'}, {type: 'operator', operatorType: 'infix'});
+            let float = item.value.replace(",", ".");
+            transpiledString += float;
         }
 
         function doVariable() {
@@ -315,7 +325,7 @@ export function transpiler(parsedLatex) {
 
                     let i;
                     for (i = 0; i < latexSlice.length; i++) {
-                        if (latexSlice[i].type !== 'variable' && latexSlice[i].type !== 'number') {
+                        if (latexSlice[i].type !== 'variable' && (latexSlice[i].type !== 'number' ||  latexSlice[i].type !== 'float')) {
                             break;
                         }
                     }
@@ -369,7 +379,6 @@ export function transpiler(parsedLatex) {
 
                 if (parsedLatex[index + 1].type === 'group') {
                     expression += transpiler(parsedLatex[index + 1].value);
-                    index++;
 
                 } else if (parsedLatex[index + 1].type === 'function') {
                     let {expressionLength} = getExpressionLength(parsedLatex.slice((index + 2)), ['function'], ['+', '-', '+-']);
@@ -573,7 +582,7 @@ export function transpiler(parsedLatex) {
                 let expression = '';
                 let envLength = environmentLength(parsedLatex.slice((index)));
 
-                if (item.value === 'matrix') {
+                if (isMatrixEnvironment(item.value)) {
                     logger.debug('Found matrix environment');
                     expression += handleMatrix(parsedLatex.slice((index + 1), (index + 1) + envLength));
                 }
