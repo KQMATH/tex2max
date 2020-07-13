@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## [1.3.1] - 2020-07-13
+### Added
+- Support for decimal commas.
+
+### Fixed
+- Operators after trigonometric functions are now correctly handled.
+- Correctly support other types of matrix environments than just `matrix`. 
+
 ## [1.2.0] - 2019-06-25
 ### Changed
 - Functions following trigonometric functions are not included as arguments to trigonometric function.
@@ -28,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## 1.0.2 - 2019-01-22
 
-[Unreleased]: https://github.com/KQMATH/tex2max/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/KQMATH/tex2max/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/KQMATH/tex2max/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/KQMATH/tex2max/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/KQMATH/tex2max/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/KQMATH/tex2max/compare/v1.0.4...v1.1.0
 [1.0.4]: https://github.com/KQMATH/tex2max/compare/v1.0.3...v1.0.4
