@@ -379,7 +379,6 @@ export function transpiler(parsedLatex) {
 
                 if (parsedLatex[index + 1].type === 'group') {
                     expression += transpiler(parsedLatex[index + 1].value);
-                    index++;
 
                 } else if (parsedLatex[index + 1].type === 'function') {
                     let {expressionLength} = getExpressionLength(parsedLatex.slice((index + 2)), ['function'], ['+', '-', '+-']);
